@@ -3,10 +3,14 @@ body {
 }
 
 .navbar {
-    background-color: #800000;
+    background-color: #AFD6E3;
     color: white;
 }
 
 .page-container {
     margin-top: 75px;
+}
+
+#searchForm {
+    margin: 0;
 }

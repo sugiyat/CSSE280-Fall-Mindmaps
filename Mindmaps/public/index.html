@@ -13,11 +13,42 @@
 <body>
   <nav class="navbar navbar-dark fixed-top">
     <a class="navbar-brand" href="#">Mindmaps</a>
+    <button>Sidebar</button>
+    <form>
+      <div class="form-group" id="searchForm">
+        <input type="search" class="fomr-control" id="searchBar" placeholder="search...">
+      </div>
+    </form>
+    <button>Profile</button>
   </nav>
-  <div id="mainPage" class="container page-container">
 
+
+  <div id="mainPage" class="container page-container">
+    <div id="folderContainer">
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Folder</h5>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="mindmapContainer">
+
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Mindmap</h6>
+          <h5 class="card-title">Mindmap Name</h5>
+          <p class="card-text">Description</p>
+        </div>
+      </div>
+
+    </div>
 
   </div>
+
+
   <script src="scripts/jquery.min.js"></script>
   <script src="scripts/popper.js"></script>
   <script src="scripts/bootstrap-material-design.js"></script>
