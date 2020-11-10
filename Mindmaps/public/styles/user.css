@@ -1,0 +1,86 @@
+body {
+    background: #DDDDDD;
+}
+
+.navbar {
+    background-color:#AFD6E3;
+    color: white;
+    justify-content: left;
+}
+
+.page-container {
+    margin-top: 75px;
+    padding: 40px;
+}
+
+#profileButton{
+    color: white;
+    position: absolute;
+    margin-top: 5px;
+    right: 20px;
+}
+
+#backIcon{
+    color: white;
+    margin-top: 5px;
+}
+
+#profileImage{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    height: 80px;
+    width: 80px;
+}
+
+#user-buttonGroup{
+    text-align: center;
+    margin-top: 30px;
+    font-size: 1em;
+    height: 20px;
+}
+
+#userSignedIn-buttonGroup{
+    text-align: center;
+}
+
+#signOutButton{
+    margin-bottom: 20px;
+}
+
+#title{
+    font-size: 1em;
+}
+
+.bmd-form-group{
+    padding: 20px 0;
+    margin: 20px 0
+}
+
+#usernameText{
+    text-align: center;
+    font-size: 1em;
+    margin-top: 10px;
+    margin-bottom: 70px;
+}
+
+#confirmPasswordButton{
+    display: block;
+    text-align: center;
+    margin: auto;
+}
+
+@media (min-width: 767px){
+    #title{
+        font-size: 1.2em;
+    }
+
+    #usernameText{
+        text-align: center;
+        font-size: 1.2em;
+        margin-top: 10px;
+        margin-bottom: 70px;
+    }
+
+
+}
