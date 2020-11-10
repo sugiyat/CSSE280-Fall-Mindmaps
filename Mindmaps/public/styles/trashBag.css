@@ -1,0 +1,47 @@
+body {
+    background: #DDDDDD;
+}
+
+.navbar {
+    background-color:#AFD6E3;
+    color: white;
+    justify-content: left;
+}
+
+.page-container {
+    margin-top: 75px;
+    padding: 40px;
+}
+
+#profileButton{
+    color: white;
+    position: absolute;
+    margin-top: 5px;
+    right: 20px;
+}
+
+
+#backIcon{
+    color: white;
+    margin-top: 5px;
+}
+
+#title{
+    font-size: 1em;
+}
+
+.btn{
+    margin: 10px;
+}
+
+.card{
+    margin: 3px 0;
+}
+
+@media (min-width: 767px){
+    #title{
+        font-size: 1.2em;
+    }
+
+
+}
