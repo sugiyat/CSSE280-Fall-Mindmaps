@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
   <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
   <link rel="stylesheet" href="styles/main.css">
+
+
   <title>Mindmap Homepage</title>
 </head>
 
@@ -14,89 +16,67 @@
   <div class="bmd-layout-container bmd-drawer-f-l bmd-drawer-overlay">
     <nav class="navbar navbar-dark fixed-top">
       <div>
-        <button id="searchButton" type="button" class="btn btn-primary navbar-toggler" data-toggle="drawer" data-target="#sideMenuBar">
+        <button id="searchButton" type="button" class="btn btn-primary navbar-toggler" data-toggle="drawer"
+          data-target="#sideMenuBar">
           <i class="material-icons">menu&nbsp;&nbsp;&nbsp;</i>
-      </button>
+        </button>
 
       </div>
-      
+
 
       <form>
         <div class="form-group" id="searchForm">
           <input type="search" id="searchBar" placeholder="search...">
         </div>
       </form>
-      
+
       <button id="profileButton" type="button" class="btn btn-primary">
-          <i class="material-icons">perm_identity</i>
+        <i class="material-icons">perm_identity</i>
       </button>
     </nav>
 
     <div id="sideMenuBar" class="bmd-layout-drawer bg-faded">
       <header>
-        <a class="navbar-brand" href="#">Mindmaps</a>
+        <a class="navbar-brand">Mindmaps</a>
       </header>
+
       <body>
-          <button class="btn btn-elegant">Settings</button>
-          <button class="btn btn-elegant">Trash</button>
+        <button id="settingButton" class="btn btn-elegant">Settings</button>
+        <button id="trashButton" class="btn btn-elegant">Trash</button>
       </body>
     </div>
 
     <div id="mainPage" class="container page-container">
       <div id="folderContainer">
-
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Folder</h5>
-          </div>
-        </div>
-
       </div>
 
       <div id="mindmapContainer">
-
-        <div class="card">
-          <div class="card-body">
-            <h6 class="card-subtitle mb-2 text-muted">Mindmap</h6>
-            <h5 class="card-title">Mindmap Name</h5>
-            <p class="card-text">Description</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-body">
-            <h6 class="card-subtitle mb-2 text-muted">Mindmap</h6>
-            <h5 class="card-title">Mindmap Name</h5>
-            <p class="card-text">Description</p>
-          </div>
-        </div>
-
       </div>
 
     </div>
 
 
-    <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addItemDialogue">
+    <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addItemsDialog">
       <i class="material-icons">add</i>
     </button>
 
 
-    <div class="modal fade" id="addItemDialogue" tabindex="-1" role="dialog" aria-labelledby="Add item dialogue" aria-hidden="true">
+    <div class="modal fade" id="addItemsDialog" tabindex="-1" role="dialog" aria-labelledby="addItemsDialog"
+      aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-          <div class="modal-body">
-            <button type="button" data-toggle="modal" data-target="#addMindmapDialogue">
-              Add Mindmap
-            </button>
-            <button type="button" data-toggle="modal" data-target="#addFolderDialogue">
-              Add Folder
-            </button>
+          <div class="modal-body row justify-content-center">
+            <button id="addFolderButton" class="btn btn-outline-primary" data-dismiss="modal" data-toggle="modal"
+              data-target="#addFolderDialogue">add folder</button>
+            <button id="addMindMapButton" class="btn btn-outline-primary" data-dismiss="modal" data-toggle="modal"
+              data-target="#addMindmapDialogue">add mindmap</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal fade" id="addMindmapDialogue" tabindex="-1" role="dialog" aria-labelledby="Add mindmap dialogue" aria-hidden="true">
+    <div class="modal fade" id="addMindmapDialogue" tabindex="-1" role="dialog" aria-labelledby="Add mindmap dialogue"
+      aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -105,24 +85,25 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="inputTitle" class="bmd-label-floating">Title</label>
-              <input type="text" class="form-control" id="inputTitle">
+              <input type="text" class="form-control" id="inputMindMapTitle">
               <span class="bmd-help">What is the title of your Mindmap?</span>
             </div>
             <div class="form-group">
               <label for="inputDescription" class="bmd-label-floating">Description</label>
-              <input type="text" class="form-control" id="inputDescription">
+              <input type="text" class="form-control" id="inputMindMapDescription">
               <span class="bmd-help">What is the Description of your Mindmap?</span>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-            <button id="submitMindmap" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
+            <button id="submitAddMindmap" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
           </div>
-      </div>
+        </div>
       </div>
     </div>
 
-    <div class="modal fade" id="addFolderDialogue" tabindex="-1" role="dialog" aria-labelledby="Add folder dialogue" aria-hidden="true">
+    <div class="modal fade" id="addFolderDialogue" tabindex="-1" role="dialog" aria-labelledby="Add folder dialogue"
+      aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -131,13 +112,13 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="inputTitle" class="bmd-label-floating">Title</label>
-              <input type="text" class="form-control" id="inputTitle">
+              <input type="text" class="form-control" id="inputFolderTitle">
               <span class="bmd-help">What is the title of your Folder?</span>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-            <button id="submitFolder" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
+            <button id="submitAddFolder" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
           </div>
         </div>
       </div>
@@ -147,13 +128,22 @@
     <script src="scripts/jquery.min.js"></script>
     <script src="scripts/popper.js"></script>
     <script src="scripts/bootstrap-material-design.js"></script>
-    <script>$("body").bootstrapMaterialDesign();</script>
+    <script>
+      $("body").bootstrapMaterialDesign();
+    </script>
     <script src="/__/firebase/7.18.0/firebase-app.js"></script>
     <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
     <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
     <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
     <script src="/__/firebase/init.js"></script>
+
+
+    <script src="scripts/user.js"></script>
     <script src="scripts/main.js"></script>
+
+
+
+
   </div>
 </body>
 

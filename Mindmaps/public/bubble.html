@@ -11,89 +11,94 @@
 </head>
 
 <body>
-    <div class="bmd-layout-container bmd-drawer-f-l bmd-drawer-overlay">
-        <nav class="navbar navbar-dark fixed-top">
-          <div>
-            <button id="searchButton" type="button" class="btn btn-primary navbar-toggler" data-toggle="drawer" data-target="#sideMenuBar">
-              <i class="material-icons">menu&nbsp;&nbsp;&nbsp;</i>
-          </button>
-      
-          </div>
-          
-      
-          <form>
-            <div class="form-group" id="searchForm">
-              <input type="search" id="searchBar" placeholder="search...">
-            </div>
-          </form>
-          
-          <button id="profileButton" type="button" class="btn btn-primary">
-              <i class="material-icons">perm_identity</i>
-          </button>
-        </nav>
-
-        <div id="sideMenuBar" class="bmd-layout-drawer bg-faded">
-            <header>
-              <a class="navbar-brand" href="#">Mindmaps</a>
-            </header>
-            <body>
-                <button class="btn btn-elegant">Settings</button>
-                <button class="btn btn-elegant">Trash</button>
-            </body>
-          </div>
-
-        <div id="bubblePage" class="container page-container">
-            <div class="bubble"></div>
-        </div>
-
-        <button id="fab" type="button" class="btn bmd-btn-fab">
-            <i class="material-icons">add</i>
+  <div class="bmd-layout-container bmd-drawer-f-l bmd-drawer-overlay">
+    <nav class="navbar navbar-dark fixed-top">
+      <div>
+        <button id="searchButton" type="button" class="btn btn-primary navbar-toggler" data-toggle="drawer"
+          data-target="#sideMenuBar">
+          <i class="material-icons">menu&nbsp;&nbsp;&nbsp;</i>
         </button>
 
-        <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addBubbleDialogue">
-            <i class="material-icons">add</i>
-          </button>
+      </div>
 
-        <div class="modal fade" id="addBubbleDialogue" tabindex="-1" role="dialog" aria-labelledby="Add bubble dialogue" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Add Bubble</h5>
-                </div>
-                <div class="modal-body">
-                  <div class="form-group">
-                    <label for="inputTitle" class="bmd-label-floating">Bubble Name</label>
-                    <input type="text" class="form-control" id="inputTitle">
-                    <span class="bmd-help">What is the name of your bubble?</span>
-                  </div>
-                  <div class="form-group">
 
-                    <div class="input-group mb-3">
-                        <label for="inputParentSelect" class="bmd-label-floating">Parent Bubble</label>
-                        <select class="custom-select" id="inputParentSelect">
-                          <option selected>Choose...</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
-                        </select>
-                        <span class="bmd-help">What is the parent of your bubble?</span>
-                      </div>
+      <form>
+        <div class="form-group" id="searchForm">
+          <input type="search" id="searchBar" placeholder="search...">
+        </div>
+      </form>
 
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-                  <button id="submitBubble" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
-                </div>
+      <button id="profileButton" type="button" class="btn btn-primary">
+        <i class="material-icons">perm_identity</i>
+      </button>
+    </nav>
+
+    <div id="sideMenuBar" class="bmd-layout-drawer bg-faded">
+      <header>
+        <a class="navbar-brand">Mindmaps</a>
+      </header>
+
+      <body>
+        <button id="settingButton" class="btn btn-elegant">Settings</button>
+        <button id="trashButton" class="btn btn-elegant">Trash</button>
+      </body>
+    </div>
+
+    <div id="bubblePage" class="container page-container">
+      <div class="bubble"></div>
+    </div>
+
+    <button id="fab" type="button" class="btn bmd-btn-fab">
+      <i class="material-icons">add</i>
+    </button>
+
+    <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addBubbleDialogue">
+      <i class="material-icons">add</i>
+    </button>
+
+    <div class="modal fade" id="addBubbleDialogue" tabindex="-1" role="dialog" aria-labelledby="Add bubble dialogue"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Bubble</h5>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="inputTitle" class="bmd-label-floating">Bubble Name</label>
+              <input type="text" class="form-control" id="inputTitle">
+              <span class="bmd-help">What is the name of your bubble?</span>
             </div>
+            <div class="form-group">
+
+              <div class="input-group mb-3">
+                <label for="inputParentSelect" class="bmd-label-floating">Parent Bubble</label>
+                <select class="custom-select" id="inputParentSelect">
+                  <option selected>Choose...</option>
+                  <option value="1">One</option>
+                  <option value="2">Two</option>
+                  <option value="3">Three</option>
+                </select>
+                <span class="bmd-help">What is the parent of your bubble?</span>
+              </div>
+
             </div>
           </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+            <button id="submitBubble" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
     <script src="scripts/jquery.min.js"></script>
     <script src="scripts/popper.js"></script>
     <script src="scripts/bootstrap-material-design.js"></script>
-    <script>$("body").bootstrapMaterialDesign();</script>
+    <script>
+      $("body").bootstrapMaterialDesign();
+    </script>
     <script src="/__/firebase/7.18.0/firebase-app.js"></script>
     <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
     <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
