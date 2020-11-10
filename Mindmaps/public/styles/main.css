@@ -24,7 +24,7 @@ body {
     color: white;
     right: 20px;
     bottom: 20px;
-    z-index: 999;
+    z-index: 3;
 }
 
 #fab:active {
