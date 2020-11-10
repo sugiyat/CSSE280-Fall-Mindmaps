@@ -62,12 +62,3 @@ body {
 #mindmapContainer{
 
 }
-
-.bubble {
-    height: 25px;
-    width: 25px;
-    background-color:#AFD6E3;
-    border-radius: 50%;
-    border: 1px solid black;
-    display: inline-block;
-}

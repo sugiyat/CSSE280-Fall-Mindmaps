@@ -271,7 +271,7 @@ user.initializePage = function () {
 
 	const urlParams = new URLSearchParams(window.location.search);
 
-	if (document.querySelector("#userHomaPage")) {
+	if (document.querySelector("#userHomePage")) {
 		console.log("user home page");
 		user.userHomePageController = new this.userHomePageController();
 	}
