@@ -45,12 +45,6 @@ rhit.FbAuthManager = class {
 		firebase.auth().onAuthStateChanged((user) => {
 
 			this._user = user;
-			rhit.displayName = user.displayName;
-			rhit.email = user.email;
-			rhit.photoURL = user.photoURL;
-			console.log('displayName :>> ', rhit.displayName);
-			console.log('email :>> ', rhit.email);
-			console.log('photoUrl :>> ', rhit.photoURL);
 			changeListener();
 
 		});
@@ -234,8 +228,6 @@ rhit.main = function () {
 	console.log("Ready");
 
 	rhit.fbAuthManager = new rhit.FbAuthManager();
-
-
 
 	rhit.fbAuthManager.beginListening(() => {
 		console.log("isSignedin = ", rhit.fbAuthManager.isSignedIn);
