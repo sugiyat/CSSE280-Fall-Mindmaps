@@ -13,11 +13,11 @@ function createBubbles(bubbles) {
 
 function dragBubble(bubbles) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    const maxWidth = document.getElementById("bubblePage").offsetWidth;
-    const maxHeight = document.getElementById("bubblePage").offsetHeight;
 
     for(i = 0; i < bubbles.length; i++) {
         let bubble = bubbles[i];
+        const maxWidth = document.getElementById("bubblePage").offsetWidth - bubble.offsetWidth;
+        const maxHeight = document.getElementById("bubblePage").offsetHeight - bubble.offsetWidth;
         bubble.onmousedown = (e1) => {
             e1 = e1 || window.event;
             e1.preventDefault();
