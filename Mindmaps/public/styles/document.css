@@ -1,0 +1,43 @@
+html, body{
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    background: #DDDDDD;
+}
+
+.navbar {
+    background-color:#AFD6E3;
+    color: white;
+    justify-content: left;
+}
+
+.page-container {
+    margin-top: 75px;
+    padding: 40px;
+}
+
+
+#documentBody {
+    background-color: white;
+}
+
+#documentPage {
+    width: 100%;
+    height: 100%;
+}
+
+#documentText {
+    resize: none;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border-width: 0;
+    outline: none;
+}
+
+#documentText:focus {
+    border-width: 0;
+    outline: none;
+}

@@ -7,13 +7,13 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
   <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
   <link rel="stylesheet" href="styles/main.css">
-  <title>MindMap Homepage</title>
+  <title>Trash Bag</title>
 </head>
 
 <body>
   <nav class="navbar navbar-dark fixed-top">
-    <button type="button" class="btn btn-secondary">
-        <i class="material-icons">menu</i>
+    <button id="searchButton" type="button" class="btn btn-primary">
+        <i class="material-icons">menu&nbsp;&nbsp;&nbsp;</i>
     </button>
 
     <form>
@@ -22,9 +22,10 @@
       </div>
     </form>
     
-    <button type="button" class="btn btn-secondary">
-        <i class="material-icons">account_circle</i>
+    <button id="profileButton" type="button" class="btn btn-primary">
+        <i class="material-icons">perm_identity</i>
     </button>
+    
   </nav>
 
 
@@ -40,6 +41,14 @@
     </div>
 
     <div id="mindmapContainer">
+
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Mindmap</h6>
+          <h5 class="card-title">Mindmap Name</h5>
+          <p class="card-text">Description</p>
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-body">
