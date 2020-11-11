@@ -232,6 +232,8 @@ user.changePasswordPageController = class {
 user.userHomePageController = class {
 	constructor() {
 
+		console.log("this is user home page");
+
 		document.querySelector("#signOutButton").onclick = (event) => {
 			user.fbAuthManager.signOut();
 		};
@@ -269,9 +271,9 @@ user.checkForRedirects = function () {
 user.initializePage = function () {
 	console.log("initialize pages");
 
-	const urlParams = new URLSearchParams(window.location.search);
+	// const urlParams = new URLSearchParams(window.location.search);
 
-	if (document.querySelector("#userHomePage")) {
+	if (document.querySelector("#userHomaPage")) {
 		console.log("user home page");
 		user.userHomePageController = new this.userHomePageController();
 	}
