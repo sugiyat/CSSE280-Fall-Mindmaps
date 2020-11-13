@@ -36,7 +36,7 @@
   
     <div id="sideMenuBar" class="bmd-layout-drawer bg-faded">
         <header>
-          <a class="navbar-brand">Mindmaps</a>
+          <a class="navbar-brand" href="/">Mindmaps</a>
         </header>
   
         <body>
@@ -46,8 +46,10 @@
     </div>
 
     <div id="bubblePage" class="container page-container">
-        <div class="bubble" >Bubble 1</div>
-        <div class="bubble" >Bubble BIG -------</div>
+        <div id="bubbleContainer">
+            <!-- <div class="bubble" >Classics</div>
+            <div class="bubble" >----- Art ------</div> -->
+        </div>
     </div>
 
     <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addBubbleDialogue">
@@ -63,28 +65,14 @@
           </div>
           <div class="modal-body">
             <div class="form-group">
-              <label for="inputTitle" class="bmd-label-floating">Bubble Name</label>
-              <input type="text" class="form-control" id="inputTitle">
+              <label for="inputAddTitle" class="bmd-label-floating">Bubble Name</label>
+              <input type="text" class="form-control" id="inputAddTitle">
               <span class="bmd-help">What is the name of your bubble?</span>
-            </div>
-            <div class="form-group">
-
-              <div class="input-group mb-3">
-                <label for="inputParentSelect" class="bmd-label-floating">Parent Bubble</label>
-                <select class="custom-select" id="inputParentSelect">
-                  <option selected>Choose...</option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </select>
-                <span class="bmd-help">What is the parent of your bubble?</span>
-              </div>
-
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-            <button id="submitBubble" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
+            <button id="submitAddBubble" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
           </div>
         </div>
       </div>
@@ -99,15 +87,15 @@
           </div>
           <div class="modal-body">
             <div class="form-group">
-              <label for="inputTitle" class="bmd-label-floating">Bubble Name</label>
-              <input type="text" class="form-control" id="inputTitle">
+              <label for="inputEditTitle" class="bmd-label-floating">Bubble Name</label>
+              <input type="text" class="form-control" id="inputEditTitle">
               <span class="bmd-help">What is the name of your bubble?</span>
             </div>
             <div class="form-group">
 
               <div class="input-group mb-3">
-                <label for="inputParentSelect" class="bmd-label-floating">Parent Bubble</label>
-                <select class="custom-select" id="inputParentSelect">
+                <label for="inputEditParent" class="bmd-label-floating">Parent Bubble</label>
+                <select class="custom-select" id="inputEditParent">
                   <option selected>Choose...</option>
                   <option value="1">One</option>
                   <option value="2">Two</option>
@@ -120,7 +108,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-            <button id="submitBubble" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
+            <button id="submitEditBubble" type="button" class="btn btn-primary" data-dismiss="modal">EDIT</button>
           </div>
         </div>
       </div>

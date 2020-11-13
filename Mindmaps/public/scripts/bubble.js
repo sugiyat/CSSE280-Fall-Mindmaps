@@ -74,7 +74,7 @@ function addBubbleGestures(bubbles) {
                 console.log('Press');
 
                 window.location.href = `/document.html`;
-                window.location.href = `/document.html?id=${document.id}`;
+                //window.location.href = `/document.html?id=${document.id}`;
             }
 
             this.isLongPress = false;

@@ -24,16 +24,19 @@ rhit.FB_COLLECTION_USERS = "Users";
 rhit.FB_KEY_MINDMAPS_TITLE = "mindmapTitle";
 rhit.FB_KEY_MINDMAPS_DESCRIPTION = "mindmapDesc";
 rhit.FB_KEY_MINDMAPS_AUTHOR = "mindmapAuthor";
-rhit.FB_KEY_MINDMAPS_ROOTBUBBLE = "rootBubbleID";
 rhit.FB_KEY_MINDMAPS_PARENTFOLDER = "parentFolderID";
 rhit.FB_KEY_MINDMAPS_TIMESTAMP = "lastTouched";
 
 rhit.FB_KEY_FOLDERS_AUTHOR = "uid";
 rhit.FB_KEY_FOLDERS_TITLE = "title";
 
-
-
-
+rhit.FB_KEY_BUBBLE_DOCUMENT = "document";
+rhit.FB_KEY_BUBBLE_NAME = "name";
+rhit.FB_KEY_BUBBLE_USER_ID = "bubbleUserID";
+rhit.FB_KEY_BUBBLE_MINDMAP_ID = "bubbleMindmapID";
+rhit.FB_KEY_BUBBLE_CHILDREN_IDS = "childrenIDs";
+rhit.FB_KEY_BUBBLE_XPOS = "xPos";
+rhit.FB_KEY_BUBBLE_YPOS = "yPos";
 
 
 // rhit.FB_KEY_USER_NAME = "username";
@@ -51,12 +54,11 @@ function htmlToElement(html) {
 }
 
 rhit.MindMap = class {
-	constructor(id, title,description,author,rootBubbleID,parentFolderID){
+	constructor(id, title, description, author, parentFolderID){
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.author = author;
-		this.rootBubbleID = rootBubbleID;
 		this.parentFolderID = parentFolderID;
 	}
 
@@ -147,18 +149,19 @@ rhit.FbMindmapManager = class {
 		console.log(`description: ${description}`);
 
 		this._ref.add({
-				[rhit.FB_KEY_MINDMAPS_TITLE]: title,
-				[rhit.FB_KEY_MINDMAPS_DESCRIPTION]: description,
-				[rhit.FB_KEY_MINDMAPS_AUTHOR]: this._uid,
-				// [rhit.FB_KEY_MINDMAPS_PARENTFOLDER]: rhit.fbFolderManager.docs,
-				[rhit.FB_KEY_MINDMAPS_TIMESTAMP]: firebase.firestore.Timestamp.now(),
-			})
-			.then(function (docRef) {
-				console.log("Mindmap added with ID: ", docRef.id);
-			})
-			.catch(function (error) {
-				console.error("Error adding mindmap: ", error);
-			});
+			[rhit.FB_KEY_MINDMAPS_TITLE]: title,
+			[rhit.FB_KEY_MINDMAPS_DESCRIPTION]: description,
+			[rhit.FB_KEY_MINDMAPS_AUTHOR]: this._uid,
+			// [rhit.FB_KEY_MINDMAPS_PARENTFOLDER]: rhit.fbFolderManager.docs,
+			[rhit.FB_KEY_MINDMAPS_TIMESTAMP]: firebase.firestore.Timestamp.now(),
+		})
+		.then(docRef => {
+			console.log("Mindmap added with ID: ", docRef.id);
+			rhit.fbBubbleManager.add(title, docRef.id);
+		})
+		.catch(function (error) {
+			console.error("Error adding mindmap: ", error);
+		});
 
 
 	}
@@ -176,7 +179,6 @@ rhit.FbMindmapManager = class {
 			changeListener();
 		})
 	}
-
 	stopListening() {
 		this._unsubsribe();
 	}
@@ -191,12 +193,27 @@ rhit.FbMindmapManager = class {
 			docSnapshot.get(rhit.FB_KEY_MINDMAPS_TITLE),
 			docSnapshot.get(rhit.FB_KEY_MINDMAPS_DESCRIPTION),
 			docSnapshot.get(rhit.FB_KEY_MINDMAPS_AUTHOR),
-			docSnapshot.get(rhit.FB_KEY_MINDMAPS_ROOTBUBBLE),
 			null
 		);
 		return mindmap;
 	}
-
+	getMindmapFromID(id) {
+		for (let i = 0; i < this._documentSnapshots.length; i++) {
+			let docSnapshot = this._documentSnapshots[i];
+			
+			if (docSnapshot.id === id) {
+				const mindmap = new rhit.MindMap(
+					docSnapshot.id,
+					docSnapshot.get(rhit.FB_KEY_MINDMAPS_TITLE),
+					docSnapshot.get(rhit.FB_KEY_MINDMAPS_DESCRIPTION),
+					docSnapshot.get(rhit.FB_KEY_MINDMAPS_AUTHOR),
+					null
+				);
+				return mindmap;
+			}
+		}
+		console.log("Invalid ID");
+	}
 }
 
 
@@ -324,25 +341,260 @@ rhit.HomePageController = class {
 }
 
 rhit.DocumentPageController = class {
-	constructor() {
 
+	constructor() {
+		const urlParams = new URLSearchParams(window.location.search);
+		this.bubbleID = urlParams.get("documentid");
+		
+		document.querySelector("#submitDocument").addEventListener("click", (event) => {
+			let bubble = rhit.fbBubbleManager.getBubbleFromID(this.bubbleID);
+			const documentText = document.querySelector("#documentText").value;
+
+			rhit.fbBubbleManager.updateBubbleFromID(bubbleID, documentText, bubble.name, bubble.childrenIDs, bubble.xPos, bubble.yPos);
+		});
+
+		document.querySelector("#doneDocument").addEventListener("click", (event) => {
+			let bubble = rhit.fbBubbleManager.getBubbleFromID(this.bubbleID);
+			window.location.href = `/bubble.html?uid=${rhit.uid}&&mindmapid=${bubble.mindmapID}`;
+		});
+
+		rhit.fbBubbleManager.beginListening(this.updateView.bind(this));
 	}
 
 	updateView() {
-
+		let bubble = rhit.fbBubbleManager.getBubbleFromID(this.bubbleID);
+		document.querySelector("#documentText").value = bubble.document;
 	}
 }
 
+
 rhit.MindmapPageController = class {
 	constructor() {
+		const urlParams = new URLSearchParams(window.location.search);
+		this.mindmapID = urlParams.get("mindmapid");
 
+		document.querySelector("#submitAddBubble").addEventListener("click", (event) => {
+			const name = document.querySelector("#inputAddTitle").value;
+
+			rhit.fbBubbleManager.add(name, this.mindmapID);
+		});
+
+		$("#addBubbleDialogue").on('show.bs.modal', (event) => {
+			document.querySelector("#inputAddTitle").value = "";
+		});
+
+		$("#addBubbleDialogue").on('shown.bs.modal', (event) => {
+			document.querySelector("#inputAddTitle").focus();
+		});
+
+
+
+		rhit.fbBubbleManager.beginListening(this.updateView.bind(this));
+		//rhit.fbMindmapManager.beginListening(this.updateView.bind(this));
 	}
 
 	updateView() {
+		const area = document.getElementById("bubblePage");
+		const bubbleContainer = htmlToElement('<div id="bubbleContainer"></div>');
+		let lines = [];
 
+		for(let i = 0; i < rhit.fbBubbleManager.length; i++) {
+			const bubble = rhit.fbBubbleManager.getBubbleFromIndex(i);
+			if(bubble.mindmapID === this.mindmapID) {
+				const bubbleElement = this._createBubble(bubble);
+
+				bubbleElement.style.top = bubble.yPos;
+				bubbleElement.style.left = bubble.xPos;
+
+				bubbleElement.style.width = `${bubble.diameter}px`;
+				bubbleElement.style.height = `${bubble.diameter}px`;
+
+				for (let j = 0; j < bubble.childrenIDs.length; j++) {
+					const child = rhit.fbBubbleManager.getBubbleFromID(bubble.childrenIDs[j]);
+					const line = htmlToElement(`<div id="line"></div>`);
+		
+					this._drawLine(
+						parseInt(bubble.xPos) + (bubble.diameter/2), 
+						parseInt(bubble.yPos) + (bubble.diameter/2), 
+						parseInt(child.xPos) + (child.diameter/2), 
+						parseInt(child.yPos) + (child.diameter/2),
+						line
+					);
+		
+					bubbleContainer.appendChild(line);
+					lines.push([bubble, child, line]);
+				}
+
+				let isDragging = false;
+				let isLongPress = false;
+				let pressTimer;
+
+				var bubbleX = 0, bubbleY = 0, cursorX = 0, cursorY = 0;
+
+				const maxWidth = area.offsetWidth - bubbleElement.offsetWidth;
+				const maxHeight = area.offsetHeight - bubbleElement.offsetWidth;
+
+				bubbleElement.onmousedown = (downEvent) => {
+					downEvent = downEvent || window.event;
+					downEvent.preventDefault();
+
+					isDragging = false;
+					isLongPress = false;
+
+					cursorX = downEvent.clientX;
+					cursorY = downEvent.clientY;
+
+					document.onmouseup = () => {
+						document.onmouseup = null;
+						document.onmousemove = null;
+					};
+
+					document.onmousemove = (moveEvent) =>  {
+						moveEvent = moveEvent || window.event;
+						moveEvent.preventDefault();
+			
+						isDragging = true;
+			
+						bubbleX = cursorX - moveEvent.clientX;
+						bubbleY = cursorY - moveEvent.clientY;
+						cursorX = moveEvent.clientX;
+						cursorY = moveEvent.clientY;
+						if ((bubbleElement.offsetTop - bubbleY >= 0) && (bubbleElement.offsetLeft - bubbleX >= 0) && (bubbleElement.offsetLeft - bubbleX <= maxWidth) && (bubbleElement.offsetTop - bubbleY <= maxHeight)) {
+							bubbleElement.style.top = (bubbleElement.offsetTop - bubbleY) + "px";
+							bubbleElement.style.left = (bubbleElement.offsetLeft - bubbleX) + "px";
+
+							for (let j = 0; j < lines.length; j++) {
+								if(lines[j][0].id === bubble.id) {
+									this._drawLine(
+										parseInt(bubbleElement.style.left) + (bubble.diameter/2), 
+										parseInt(bubbleElement.style.top) + (bubble.diameter/2), 
+										parseInt(lines[j][1].xPos) + (lines[j][1].diameter/2), 
+										parseInt(lines[j][1].yPos) + (lines[j][1].diameter/2),
+										lines[j][2]
+									);
+								} else if (lines[j][1].id === bubble.id) {
+									this._drawLine(
+										parseInt(bubbleElement.style.left) + (bubble.diameter/2), 
+										parseInt(bubbleElement.style.top) + (bubble.diameter/2), 
+										parseInt(lines[j][0].xPos) + (lines[j][0].diameter/2), 
+										parseInt(lines[j][0].yPos) + (lines[j][0].diameter/2),
+										lines[j][2]
+									);
+								}
+								
+								
+							}
+						}
+					};
+
+					pressTimer = window.setTimeout(() => {
+						if (!isDragging) {
+							console.log("Long Press");
+							isLongPress = true;
+
+							document.querySelector("#inputAddTitle").value = bubble.name;
+							this._createModalOptions(bubble.id, "inputEditParent");
+
+							document.querySelector("#submitEditBubble").addEventListener("click", (event) => {
+								const name = document.querySelector("#inputEditTitle").value;
+								const parentID = document.querySelector("#inputEditParent").value;
+								this._getBubbleChildren(bubble, parentID);
+					
+								rhit.fbBubbleManager.updateBubbleFromID(bubble.id, bubble.document, name, bubble.childrenIDs, bubble.xPos, bubble.yPos);
+							});
+
+							$('#editBubbleDialogue').modal('show');
+						}
+						
+					},1500);
+					
+				};
+
+				bubbleElement.onmouseup = (e) =>  {
+					clearTimeout(pressTimer);
+					
+					if (!isDragging && !isLongPress && e.button === 0) {
+						console.log('Press');
+						
+						window.location.href = `/document.html?uid=${rhit.uid}&&documentid=${bubble.id}`;
+					}
+
+					if (isDragging) {
+						rhit.fbBubbleManager.updateBubbleFromID(bubble.id, bubble.document, bubble.name, bubble.childrenIDs, bubbleElement.style.left, bubbleElement.style.top);
+					}
+		
+					isLongPress = false;
+					isDragging = false;
+				};
+
+				bubbleContainer.appendChild(bubbleElement);
+			}
+		}
+
+		const oldBubbleContainer = document.querySelector("#bubbleContainer");
+		oldBubbleContainer.removeAttribute("id");
+		oldBubbleContainer.hidden = true;
+
+		oldBubbleContainer.parentElement.appendChild(bubbleContainer);
 	}
-	createBubbleView(bubble) {
 
+	_drawLine(x1, y1, x2, y2, line) {
+		const distance = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+
+		const xMid = (x1+x2)/2;
+		const yMid = (y1+y2)/2;
+
+		const slope = Math.atan2(y1-y2, x1-x2) * 180 / Math.PI;
+
+		line.style.width = `${distance}px`;
+		line.style.top = `${yMid}px`;
+		line.style.left = `${xMid - (distance/2)}px`;
+		line.style.transform = `rotate(${slope}deg)`;
+	}
+
+	_getBubbleChildren(child, parentID) {
+		const parent = rhit.fbBubbleManager.getBubbleFromID(parentID);
+		let children = parent.childrenIDs;
+
+		for (let i = 0; i < children.length; i++) {
+			if (children[i] === child.id) {
+				return;
+			}
+		}
+
+		children.push(child.id);
+		rhit.fbBubbleManager.updateBubbleFromID(parent.id, parent.document, parent.name, children, parent.xPos, parent.yPos);
+	}
+
+	_createModalOptions(bubbleID, modalParentInputID) {
+		const optionsContainer = htmlToElement(`<select class="custom-select" id="${modalParentInputID}"></select>`);
+
+		for(let i = 0; i < rhit.fbBubbleManager.length; i++) {
+			const optionBubble = rhit.fbBubbleManager.getBubbleFromIndex(i);
+
+			if (!(optionBubble.id === bubbleID)) {
+				const bubbleOption = this._createOption(optionBubble);
+				optionsContainer.appendChild(bubbleOption);
+			}
+		}
+
+		const oldOptionsContainer = document.querySelector(`#${modalParentInputID}`);
+		oldOptionsContainer.removeAttribute("id");
+		oldOptionsContainer.hidden = true;
+
+		oldOptionsContainer.parentElement.appendChild(optionsContainer);
+	}
+
+	_createBubble(bubble) {
+		return htmlToElement(
+			`<div class="bubble">${bubble.name}</div>`
+		);
+	}
+
+	_createOption(bubble) {
+		return htmlToElement(
+			`<option value="${bubble.id}">${bubble.name}</option>`
+		);
 	}
 }
 
@@ -361,7 +613,7 @@ rhit.FolderPageController = class {
 
 rhit.TrashPageController = class {
 	constructor() {
-
+		
 	}
 
 	updateView() {
@@ -370,36 +622,100 @@ rhit.TrashPageController = class {
 }
 
 rhit.Bubble = class {
-	constructor(document, name, parentID) {
+	constructor(id, mindmapID, document, name, childrenIDs, xPos, yPos) {
+		this.id = id;
+		this.mindmapID = mindmapID;
 		this.document = document;
 		this.name = name;
-		this.parentID = parentID;
+		this.childrenIDs = childrenIDs;
+		this.xPos = xPos;
+		this.yPos = yPos;
 	}
 
+	get diameter() {
+		return 7.5*this.name.length + 16;
+	}
 }
 
-
-
-
-
 rhit.FBBubbleManager = class {
-	constructor() {
-
+	constructor(uid) {
+		this._uid = uid;
+		this._documentSnapshots = [];
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_BUBBLES);
+		this._unsubsribe = null;
 	}
-	add(name, parentID) {
 
-	}
-	delete() {
+	add(name, mindmapID) {
+		if (name == "") {
+			return;
+		}
 
+		this._ref.add({
+			[rhit.FB_KEY_BUBBLE_DOCUMENT]: "",
+			[rhit.FB_KEY_BUBBLE_NAME]: name,
+			[rhit.FB_KEY_BUBBLE_USER_ID]: this._uid,
+			[rhit.FB_KEY_BUBBLE_MINDMAP_ID]: mindmapID,
+			[rhit.FB_KEY_BUBBLE_CHILDREN_IDS]: [],
+			[rhit.FB_KEY_BUBBLE_XPOS]: 0,
+			[rhit.FB_KEY_BUBBLE_YPOS]: 0,
+		})
+		.then(function (docRef) {
+			console.log("Bubble written with ID: ", docRef.id);
+		})
+		.catch(function (error) {
+			console.log("Error adding document: ", error);
+		});
 	}
-	update(name, parentID) {
 
-	}
 	beginListening(changeListener) {
+		let query = this._ref;
+		if (this._uid) {
+			query = query.where(rhit.FB_KEY_BUBBLE_USER_ID, "==", this._uid);
+			//query = query.where(rhit.FB_KEY_BUBBLE_MINDMAP_ID, "==", ???);
+		}
 
+		this._unsubsribe = query.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			changeListener();
+		})
 	}
 	stopListening() {
-
+		this._unsubsribe();
+	}
+	updateBubbleFromID(bubbleID, document, name, childrenIDs, xPos, yPos) {
+		const bubble = this._ref.doc(bubbleID);
+		bubble.update({
+			[rhit.FB_KEY_BUBBLE_DOCUMENT]: document,
+			[rhit.FB_KEY_BUBBLE_NAME]: name,
+			[rhit.FB_KEY_BUBBLE_CHILDREN_IDS]: childrenIDs,
+			[rhit.FB_KEY_BUBBLE_XPOS]: xPos,
+			[rhit.FB_KEY_BUBBLE_YPOS]: yPos,
+		});
+	}
+	getBubbleFromID(bubbleID) {
+		
+		for (let i = 0; i < this.length; i++) {
+			const docSnapshot = this._documentSnapshots[i];
+			if (docSnapshot.id == bubbleID) {
+				return this.getBubbleFromIndex(i);
+			}
+		}
+	}
+	getBubbleFromIndex(index) {
+		const docSnapshot = this._documentSnapshots[index];
+		const bubble = new rhit.Bubble(
+			docSnapshot.id, 
+			docSnapshot.get(rhit.FB_KEY_BUBBLE_MINDMAP_ID), 
+			docSnapshot.get(rhit.FB_KEY_BUBBLE_DOCUMENT), 
+			docSnapshot.get(rhit.FB_KEY_BUBBLE_NAME), 
+			docSnapshot.get(rhit.FB_KEY_BUBBLE_CHILDREN_IDS), 
+			docSnapshot.get(rhit.FB_KEY_BUBBLE_XPOS),
+			docSnapshot.get(rhit.FB_KEY_BUBBLE_YPOS)
+		);
+		return bubble;
+	}
+	get length() {
+		return this._documentSnapshots.length;
 	}
 
 }
@@ -411,15 +727,23 @@ rhit.main = function () {
 	console.log("Ready main page");
 
 	const urlParams = new URLSearchParams(window.location.search);
-
 	rhit.uid = urlParams.get("uid");
-
 
 	rhit.fbFolderManager = new rhit.FBFolderManager(rhit.uid);
 	rhit.fbMindmapManager = new rhit.FbMindmapManager(rhit.uid);
+	rhit.fbBubbleManager = new rhit.FBBubbleManager(rhit.uid);
 
-	new rhit.HomePageController();
+	if(document.querySelector('#homePage')) {
+		new rhit.HomePageController();
+	}
 
+	if(document.querySelector("#bubblePage")) {
+		new rhit.MindmapPageController();
+	}
+
+	if(document.querySelector("#documentPage")) {
+		new rhit.DocumentPageController();
+	}
 	
 
 };

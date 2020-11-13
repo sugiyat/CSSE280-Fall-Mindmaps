@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Folders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "title",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Mindmaps",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "mindmapAuthor",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastTouched",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

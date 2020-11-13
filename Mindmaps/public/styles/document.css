@@ -20,7 +20,7 @@ body {
 
 
 #documentBody {
-    background-color: white;
+    background-color: #DDDDDD;
 }
 
 #documentPage {
@@ -30,9 +30,10 @@ body {
 
 #documentText {
     resize: none;
+    background: white;
     width: 100%;
     height: 100%;
-    padding: 0;
+    padding: 1rem;
     border-width: 0;
     outline: none;
 }
