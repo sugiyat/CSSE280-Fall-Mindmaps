@@ -14,28 +14,19 @@ var user = user || {};
 user.FB_COLLECTION_USERS = "Users";
 user.FB_KEY_USER_EMAIL = "email";
 user.FB_KEY_USER_PROFILE = "profilePictureURL";
-user.fbUserManager = null;
 
+user.fbUserManager = null;
 user.LogInPageController = null;
 user.changePasswordPageController = null;
 user.userHomePageController = null;
 user.fbAuthManager = null;
-user.email= "test";
+user.email = "test";
+user.uid = null;
 
 /** function and class syntax examples */
 user.functionName = function () {
 	/** function body */
 };
-
-user.ClassName = class {
-	constructor() {
-
-	}
-
-	methodName() {
-
-	}
-}
 
 user.FbAuthManager = class {
 	constructor() {
@@ -55,7 +46,7 @@ user.FbAuthManager = class {
 	}
 
 	signIn(email, password) {
-		console.log(`log in for email : ${email} password: ${password}`);
+		// console.log(`log in for email : ${email} password: ${password}`);
 		firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
 			var errorCode = error.code;
 			var errorMessage = error.message;
@@ -63,11 +54,10 @@ user.FbAuthManager = class {
 
 		});
 
-		user.email = email;
 	}
 
 	signUp(email, password) {
-		console.log(`create account for email : ${email} password: ${password}`);
+		// console.log(`create account for email : ${email} password: ${password}`);
 
 		firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
 			var errorCode = error.code;
@@ -76,7 +66,7 @@ user.FbAuthManager = class {
 		});
 
 		user.fbUserManager.add(email);
-		this.signIn(email,password);
+		this.signIn(email, password);
 
 	}
 
@@ -110,6 +100,7 @@ user.FbAuthManager = class {
 	get uid() {
 		return this._user.uid;
 	}
+
 }
 
 user.FBUserManager = class {
@@ -135,16 +126,18 @@ user.FBUserManager = class {
 			});
 	}
 
-	addProfileURL(profileURL){
-		this._ref.update({
-			[user.FB_KEY_USER_PROFILE]: profileURL,
-		})
-		.then(() => {
-			console.log("Profile picture successfully updated!");
-		})
-		.catch(function (error) {
-			console.error("Error editting profile picture: ", error);
-		});
+	addProfileURL(uid, profileURL) {
+		this._ref.doc(uid).update({
+				[user.FB_KEY_USER_PROFILE]: profileURL
+			})
+			.then(function () {
+				console.log("Document successfully updated!");
+			})
+			.catch(function (error) {
+				// The document probably doesn't exist.
+				console.error("Error updating document: ", error);
+			});
+
 	}
 
 	beginListening(changeListener) {
@@ -163,6 +156,61 @@ user.FBUserManager = class {
 
 	stopListening() {
 		this._unsubsribe();
+	}
+
+	// profileURL(uid) {
+	// 	// const testUID = UserDefaults.standard.value(forKey: "uid") as String ?? "Null";
+	// 	console.log("trying to get profileURL for uid: ", uid);
+	// 	var docRef = this._ref.doc(uid);
+
+	// 	docRef.get().then(function(querySnapshot) {
+	// 		querySnapshot.forEach(function(doc) {
+	// 			console.log(doc.id, " => ", doc.data());
+	// 			console.log("--------found object, returning : ", doc.data().profilePictureURL);
+
+	// 		});
+	// 	});
+
+	// 	console.log("the doc is: ", docRef.data);
+	// 	var toReturn = "";
+	// 	console.log("got the profile URL for uid: " + uid + " and the profile URL is: " + toReturn);
+	// 	return toReturn;
+	// }
+
+	getProfileURL(username) {
+		console.log("trying to get prifilePictureURL for username : ", username);
+		var toReturn = null;
+
+		this._ref.where("email", "==", username)
+			.get()
+			.then(function (querySnapshot) {
+				querySnapshot.forEach(function (doc) {
+					// doc.data() is never undefined for query doc snapshots
+					// console.log(doc.id, " => ", doc.data());
+					console.log("found object, returning : ", doc.data().profilePictureURL);
+					toReturn = doc.data().profilePictureURL;
+
+					if (document.querySelector("#userHomaPage")) {
+						console.log("user home page update profile");
+						user.userHomePageController.updateProfile(toReturn);
+					}
+				
+					else if (document.querySelector("#changePasswordPage")) {
+						console.log("user password page update profile");
+				
+						user.changePasswordPageController.updateProfile(toReturn);
+				
+					}
+					
+					// return doc.data().profilePictureURL;
+					// return doc.profilePictureURL;
+				});
+			})
+			.catch(function (error) {
+				console.log("Error getting documents: ", error);
+			});
+
+		return toReturn;
 	}
 
 }
@@ -186,7 +234,7 @@ user.LogInPageController = class {
 			console.log("clicked log in button");
 			user.fbAuthManager.signIn(inputEmailEl.value, inputPasswordEl.value);
 
-		};		
+		};
 
 	}
 
@@ -196,6 +244,17 @@ user.LogInPageController = class {
 
 user.changePasswordPageController = class {
 	constructor() {
+
+		// var myuserHomePageController = new user.userHomePageController();
+		// var myfbUserManager = new user.FBUserManager();
+
+		document.querySelector("#backIcon").onclick = (event) => {
+
+			console.log("go back to home page");
+			window.location.href = `/mainPage.html?uid=${user.fbAuthManager.uid}`;
+
+		};
+
 		document.querySelector("#confirmPasswordButton").onclick = (event) => {
 			console.log("try to change Password");
 			const oldPassword = document.querySelector("#oldPasswordInput").value;
@@ -211,11 +270,16 @@ user.changePasswordPageController = class {
 				// User re-authenticated.
 				if (newPassword == confirmPassword) {
 					user.fbAuthManager.changePassword(newPassword);
+					document.querySelector("#simpleDialogText").innerHTML = "Successfully changed your password.";
+					$("#simpleDialog").modal("show");
 				} else {
-					console.log("change password reauthenticate failed");
+					document.querySelector("#simpleDialogText").innerHTML = "New password and confirm password doesn't match";
+					$("#simpleDialog").modal("show");
 				}
 			}).catch(function (error) {
 				// An error happened.
+				document.querySelector("#simpleDialogText").innerHTML = "Wrong old password";
+				$("#simpleDialog").modal("show");
 				console.log("err: ", error);
 			});
 
@@ -224,13 +288,30 @@ user.changePasswordPageController = class {
 		document.querySelector("#profileButton").onclick = (event) => {
 			console.log("clicked profile button");
 			window.location.href = `/userHomePage.html?username=${firebase.auth().currentUser.email}`;
-		};		
+		};
 
+		var url = user.fbUserManager.getProfileURL(firebase.auth().currentUser.email);
+
+
+		// console.log("should change profile for change password page with url: ", user.userHomePageController.profileURL);
+		// $("#profileButton").attr("src", user.userHomePageController.profileURL);
+		// document.querySelector("#profileButton").
+
+	}
+
+	updateProfile(profile){
+		console.log("should update profile");
+		this.profileURL = profile;
+		$("#profileImage").attr("src", profile);
 	}
 }
 
 user.userHomePageController = class {
 	constructor() {
+		// this.profileURL = "profile.png";
+
+		// var profileUrl = "profileImage.png";
+		console.log("this is user home page");
 
 		document.querySelector("#signOutButton").onclick = (event) => {
 			user.fbAuthManager.signOut();
@@ -247,13 +328,41 @@ user.userHomePageController = class {
 			console.log("clicked profile image");
 			console.log("TODO: need to implement");
 
-			const url = document.querySelector("#inputProfileURL").value;
+			$('#uploadProfileDialog').modal('show');
 
-			$("#profileImage").attr("src",url);
+			// console.log(url);
+
+			// const element = document.querySelector('.element')
+			// const style = getComputedStyle(element)
+
+			// location.reload();
+
 		};
 
-		document.querySelector("#usernameText").innerHTML = firebase.auth().currentUser.email;
+		document.querySelector("#uploadProfileButton").addEventListener("click", (event) => {
 
+			const newProfileURL = document.querySelector("#inputProfileURL").value;
+			user.fbUserManager.addProfileURL(firebase.auth().currentUser.uid, newProfileURL);
+
+			this.updateProfile(newProfileURL);
+		});
+
+
+		document.querySelector("#backIcon").onclick = (event) => {
+
+			console.log("go back to home page");
+			window.location.href = `/mainPage.html?uid=${user.fbAuthManager.uid}`;
+
+		};
+
+		var url = user.fbUserManager.getProfileURL(firebase.auth().currentUser.email);
+		document.querySelector("#usernameText").innerHTML = firebase.auth().currentUser.email;
+	}
+
+	updateProfile(profile){
+		console.log("should update profile");
+		this.profileURL = profile;
+		$("#profileImage").attr("src", profile);
 	}
 }
 
@@ -269,9 +378,9 @@ user.checkForRedirects = function () {
 user.initializePage = function () {
 	console.log("initialize pages");
 
-	const urlParams = new URLSearchParams(window.location.search);
+	// const urlParams = new URLSearchParams(window.location.search);
 
-	if (document.querySelector("#userHomePage")) {
+	if (document.querySelector("#userHomaPage")) {
 		console.log("user home page");
 		user.userHomePageController = new this.userHomePageController();
 	}
