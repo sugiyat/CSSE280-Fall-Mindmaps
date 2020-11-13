@@ -25,35 +25,36 @@
       </span>
   </nav>
   <div id="userHomaPage" class="container page-container">
-    <img id="profileImage" alt="Profile Image">
+    <img id="profileImage" src="profileImage.png" alt="Profile Image">
     <div id="usernameText">username</div>
     <div id="userSignedIn-buttonGroup">
-    <button id="signOutButton" class="btn btn-outline-primary" style="text-align: center" type="button">Sign Out</button>
-    <br>
-    <button id="changePasswordButton" class="btn btn-outline-primary" type="button">Change Password</button>
-  </div>
+      <button id="signOutButton" class="btn btn-outline-primary" style="text-align: center" type="button">Sign
+        Out</button>
+      <br>
+      <button id="changePasswordButton" class="btn btn-outline-primary" type="button">Change Password</button>
+    </div>
 
-  <div class="modal fade" id="uploadProfileDialog" tabindex="-1" role="dialog" aria-labelledby="Add pic dialog"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Upload your profile image</h5>
-        </div>
-        <div class="modal-body">
-          <div class="form-group bmd-form-group">
-            <label for="inputProfileURL" class="bmd-label-floating">URL to existing picture</label>
-            <input type="text" class="form-control" id="inputProfileURL">
-            <span class="bmd-help">URL to existing picture</span>
+    <div class="modal fade" id="uploadProfileDialog" tabindex="-1" role="dialog" aria-labelledby="Upload profile dialog"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Upload your profile image</h5>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">CALCEL</button>
-          <button id="uploadProfileButton" class="btn btn-primary" data-dismiss="modal">UPLOAD</button>
+          <div class="modal-body">
+            <div class="form-group bmd-form-group">
+              <label for="inputProfileURL" class="bmd-label-floating">URL to existing picture</label>
+              <input type="text" class="form-control" id="inputProfileURL">
+              <span class="bmd-help">URL to existing picture</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">CALCEL</button>
+            <button id="uploadProfileButton" class="btn btn-primary" data-dismiss="modal">UPLOAD</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
   </div>
   <script src="scripts/jquery.min.js"></script>

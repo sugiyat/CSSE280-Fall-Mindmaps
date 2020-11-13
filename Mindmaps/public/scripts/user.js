@@ -14,8 +14,8 @@ var user = user || {};
 user.FB_COLLECTION_USERS = "Users";
 user.FB_KEY_USER_EMAIL = "email";
 user.FB_KEY_USER_PROFILE = "profilePictureURL";
-user.fbUserManager = null;
 
+user.fbUserManager = null;
 user.LogInPageController = null;
 user.changePasswordPageController = null;
 user.userHomePageController = null;
@@ -27,16 +27,6 @@ user.uid = null;
 user.functionName = function () {
 	/** function body */
 };
-
-user.ClassName = class {
-	constructor() {
-
-	}
-
-	methodName() {
-
-	}
-}
 
 user.FbAuthManager = class {
 	constructor() {
@@ -199,7 +189,19 @@ user.FBUserManager = class {
 					// console.log(doc.id, " => ", doc.data());
 					console.log("found object, returning : ", doc.data().profilePictureURL);
 					toReturn = doc.data().profilePictureURL;
-					user.userHomePageController.updateProfile(toReturn);
+
+					if (document.querySelector("#userHomaPage")) {
+						console.log("user home page update profile");
+						user.userHomePageController.updateProfile(toReturn);
+					}
+				
+					else if (document.querySelector("#changePasswordPage")) {
+						console.log("user password page update profile");
+				
+						user.changePasswordPageController.updateProfile(toReturn);
+				
+					}
+					
 					// return doc.data().profilePictureURL;
 					// return doc.profilePictureURL;
 				});
@@ -242,6 +244,17 @@ user.LogInPageController = class {
 
 user.changePasswordPageController = class {
 	constructor() {
+
+		// var myuserHomePageController = new user.userHomePageController();
+		// var myfbUserManager = new user.FBUserManager();
+
+		document.querySelector("#backIcon").onclick = (event) => {
+
+			console.log("go back to home page");
+			window.location.href = `/mainPage.html?uid=${user.fbAuthManager.uid}`;
+
+		};
+
 		document.querySelector("#confirmPasswordButton").onclick = (event) => {
 			console.log("try to change Password");
 			const oldPassword = document.querySelector("#oldPasswordInput").value;
@@ -257,11 +270,16 @@ user.changePasswordPageController = class {
 				// User re-authenticated.
 				if (newPassword == confirmPassword) {
 					user.fbAuthManager.changePassword(newPassword);
+					document.querySelector("#simpleDialogText").innerHTML = "Successfully changed your password.";
+					$("#simpleDialog").modal("show");
 				} else {
-					console.log("change password reauthenticate failed");
+					document.querySelector("#simpleDialogText").innerHTML = "New password and confirm password doesn't match";
+					$("#simpleDialog").modal("show");
 				}
 			}).catch(function (error) {
 				// An error happened.
+				document.querySelector("#simpleDialogText").innerHTML = "Wrong old password";
+				$("#simpleDialog").modal("show");
 				console.log("err: ", error);
 			});
 
@@ -272,11 +290,25 @@ user.changePasswordPageController = class {
 			window.location.href = `/userHomePage.html?username=${firebase.auth().currentUser.email}`;
 		};
 
+		var url = user.fbUserManager.getProfileURL(firebase.auth().currentUser.email);
+
+
+		// console.log("should change profile for change password page with url: ", user.userHomePageController.profileURL);
+		// $("#profileButton").attr("src", user.userHomePageController.profileURL);
+		// document.querySelector("#profileButton").
+
+	}
+
+	updateProfile(profile){
+		console.log("should update profile");
+		this.profileURL = profile;
+		$("#profileImage").attr("src", profile);
 	}
 }
 
 user.userHomePageController = class {
 	constructor() {
+		// this.profileURL = "profile.png";
 
 		// var profileUrl = "profileImage.png";
 		console.log("this is user home page");
@@ -329,6 +361,7 @@ user.userHomePageController = class {
 
 	updateProfile(profile){
 		console.log("should update profile");
+		this.profileURL = profile;
 		$("#profileImage").attr("src", profile);
 	}
 }
