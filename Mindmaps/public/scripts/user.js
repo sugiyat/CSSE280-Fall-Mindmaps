@@ -46,7 +46,7 @@ user.FbAuthManager = class {
 	}
 
 	signIn(email, password) {
-		console.log(`log in for email : ${email} password: ${password}`);
+		// console.log(`log in for email : ${email} password: ${password}`);
 		firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
 			var errorCode = error.code;
 			var errorMessage = error.message;
@@ -57,7 +57,7 @@ user.FbAuthManager = class {
 	}
 
 	signUp(email, password) {
-		console.log(`create account for email : ${email} password: ${password}`);
+		// console.log(`create account for email : ${email} password: ${password}`);
 
 		firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
 			var errorCode = error.code;
