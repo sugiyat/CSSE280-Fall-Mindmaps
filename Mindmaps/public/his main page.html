@@ -23,6 +23,13 @@
 
       </div>
 
+
+      <form>
+        <div class="form-group" id="searchForm">
+          <input type="search" id="searchBar" placeholder="search...">
+        </div>
+      </form>
+
       <button id="profileButton" type="button" class="btn btn-primary">
         <i class="material-icons">perm_identity</i>
       </button>
@@ -34,20 +41,39 @@
       </header>
 
       <body>
+        <button id="settingButton" class="btn btn-elegant">Settings</button>
         <button id="trashButton" class="btn btn-elegant">Trash</button>
       </body>
     </div>
 
-    <div id="mainPage" class="container page-container">
+    <div id="homePage" class="container page-container">
+      <div id="folderContainer">
+      </div>
+
       <div id="mindmapContainer">
       </div>
 
     </div>
 
 
-    <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addMindmapDialogue">
+    <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addItemsDialog">
       <i class="material-icons">add</i>
     </button>
+
+
+    <div class="modal fade" id="addItemsDialog" tabindex="-1" role="dialog" aria-labelledby="addItemsDialog"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body row justify-content-center">
+            <button id="addFolderButton" class="btn btn-outline-primary" data-dismiss="modal" data-toggle="modal"
+              data-target="#addFolderDialogue">add folder</button>
+            <button id="addMindMapButton" class="btn btn-outline-primary" data-dismiss="modal" data-toggle="modal"
+              data-target="#addMindmapDialogue">add mindmap</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="modal fade" id="addMindmapDialogue" tabindex="-1" role="dialog" aria-labelledby="Add mindmap dialogue"
       aria-hidden="true">
@@ -76,8 +102,27 @@
       </div>
     </div>
 
-
-
+    <div class="modal fade" id="addFolderDialogue" tabindex="-1" role="dialog" aria-labelledby="Add folder dialogue"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Folder</h5>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="inputTitle" class="bmd-label-floating">Title</label>
+              <input type="text" class="form-control" id="inputFolderTitle">
+              <span class="bmd-help">What is the title of your Folder?</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+            <button id="submitAddFolder" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
     <script src="scripts/jquery.min.js"></script>

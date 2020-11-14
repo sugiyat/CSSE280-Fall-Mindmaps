@@ -14,42 +14,82 @@
 <body>
   <div class="bmd-layout-container bmd-drawer-f-l bmd-drawer-overlay">
     <nav class="navbar navbar-dark fixed-top">
-        <div>
-            <button id="searchButton" type="button" class="btn btn-primary navbar-toggler" data-toggle="drawer"
-            data-target="#sideMenuBar">
-            <i class="material-icons">menu&nbsp;&nbsp;&nbsp;</i>
-            </button>
-
-        </div>
-
-
-        <form>
-            <div class="form-group" id="searchForm">
-            <input type="search" id="searchBar" placeholder="search...">
-            </div>
-        </form>
-
-        <button id="profileButton" type="button" class="btn btn-primary">
-            <i class="material-icons">perm_identity</i>
+      <div>
+        <button id="searchButton" type="button" class="btn btn-primary navbar-toggler" data-toggle="drawer"
+          data-target="#sideMenuBar">
+          <i class="material-icons">menu&nbsp;&nbsp;&nbsp;</i>
         </button>
+
+      </div>
+
+      <button id="profileButton" type="button" class="btn btn-primary">
+        <i class="material-icons">perm_identity</i>
+      </button>
     </nav>
-  
+
     <div id="sideMenuBar" class="bmd-layout-drawer bg-faded">
-        <header>
-          <a class="navbar-brand" id="navHomeButton">Mindmaps</a>
-        </header>
-  
-        <body>
-          <button id="settingButton" class="btn btn-elegant">Settings</button>
-          <button id="trashButton" class="btn btn-elegant">Trash</button>
-        </body>
+      <header>
+        <a class="navbar-brand" id="navHomeButton">Mindmaps</a>
+      </header>
+
+      <body>
+        <button id="trashButton" class="btn btn-elegant">Trash</button>
+      </body>
     </div>
 
     <div id="bubblePage" class="container page-container">
-        <div id="bubbleContainer">
-            <!-- <div class="bubble" >Classics</div>
+      <div id="bubbleContainer">
+        <!-- <div class="bubble" >Classics</div>
             <div class="bubble" >----- Art ------</div> -->
+
+      </div>
+    </div>
+
+    <div class="modal fade" id="editOrDeleteMindmapDialog" tabindex="-1" role="dialog"
+      aria-labelledby="Add or delete mindmap dialogue" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">What do you want to do for the mindmap?</h5>
+          </div>
+          <div class="modal-body">
+            <div class="modal-body row justify-content-center">
+              <button id="editMindmapButton" class="btn btn-outline-primary" data-dismiss="modal" data-toggle="modal"
+                data-target="#editMindmapDialog">edit</button>
+              <button id="deleteMindmapButton" class="btn btn-outline-primary" data-dismiss="modal">delete</button>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+
+
+    <div class="modal fade" id="editMindmapDialog" tabindex="-1" role="dialog" aria-labelledby="Edit mindmap dialogue"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Mindmap Information</h5>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="inputEditTitle" class="bmd-label-floating">Title</label>
+              <input type="text" class="form-control" id="inputEditTitle">
+              <span class="bmd-help">What is the title of your Mindmap?</span>
+            </div>
+            <div class="form-group">
+              <label for="inputEditDescription" class="bmd-label-floating">Description</label>
+              <input type="text" class="form-control" id="inputEditDescription">
+              <span class="bmd-help">What is the Description of your Mindmap?</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+            <button id="submitEditMindmapButton" type="button" class="btn btn-primary"
+              data-dismiss="modal">UPDATE</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addBubbleDialogue">
