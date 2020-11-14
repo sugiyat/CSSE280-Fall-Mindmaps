@@ -34,7 +34,7 @@ rhit.FB_KEY_BUBBLE_DOCUMENT = "document";
 rhit.FB_KEY_BUBBLE_NAME = "name";
 rhit.FB_KEY_BUBBLE_USER_ID = "bubbleUserID";
 rhit.FB_KEY_BUBBLE_MINDMAP_ID = "bubbleMindmapID";
-rhit.FB_KEY_BUBBLE_CHILDREN_IDS = "childrenIDs";
+rhit.FB_KEY_BUBBLE_PARENT_ID = "parentID";
 rhit.FB_KEY_BUBBLE_XPOS = "xPos";
 rhit.FB_KEY_BUBBLE_YPOS = "yPos";
 
@@ -157,7 +157,6 @@ rhit.FbMindmapManager = class {
 		})
 		.then(docRef => {
 			console.log("Mindmap added with ID: ", docRef.id);
-			rhit.fbBubbleManager.add(title, docRef.id);
 		})
 		.catch(function (error) {
 			console.error("Error adding mindmap: ", error);
@@ -350,7 +349,8 @@ rhit.DocumentPageController = class {
 			let bubble = rhit.fbBubbleManager.getBubbleFromID(this.bubbleID);
 			const documentText = document.querySelector("#documentText").value;
 
-			rhit.fbBubbleManager.updateBubbleFromID(bubbleID, documentText, bubble.name, bubble.childrenIDs, bubble.xPos, bubble.yPos);
+			console.log("green");
+			rhit.fbBubbleManager.updateBubbleFromID(bubbleID, documentText, bubble.name, bubble.parentID, bubble.xPos, bubble.yPos);
 		});
 
 		document.querySelector("#doneDocument").addEventListener("click", (event) => {
@@ -387,16 +387,13 @@ rhit.MindmapPageController = class {
 			document.querySelector("#inputAddTitle").focus();
 		});
 
-
-
 		rhit.fbBubbleManager.beginListening(this.updateView.bind(this));
-		//rhit.fbMindmapManager.beginListening(this.updateView.bind(this));
 	}
 
 	updateView() {
 		const area = document.getElementById("bubblePage");
 		const bubbleContainer = htmlToElement('<div id="bubbleContainer"></div>');
-		let lines = [];
+		const lines = [];
 
 		for(let i = 0; i < rhit.fbBubbleManager.length; i++) {
 			const bubble = rhit.fbBubbleManager.getBubbleFromIndex(i);
@@ -409,20 +406,18 @@ rhit.MindmapPageController = class {
 				bubbleElement.style.width = `${bubble.diameter}px`;
 				bubbleElement.style.height = `${bubble.diameter}px`;
 
-				for (let j = 0; j < bubble.childrenIDs.length; j++) {
-					const child = rhit.fbBubbleManager.getBubbleFromID(bubble.childrenIDs[j]);
+				const parent = rhit.fbBubbleManager.getBubbleFromID(bubble.parentID);
+				if (parent) {
 					const line = htmlToElement(`<div id="line"></div>`);
-		
 					this._drawLine(
 						parseInt(bubble.xPos) + (bubble.diameter/2), 
 						parseInt(bubble.yPos) + (bubble.diameter/2), 
-						parseInt(child.xPos) + (child.diameter/2), 
-						parseInt(child.yPos) + (child.diameter/2),
+						parseInt(parent.xPos) + (parent.diameter/2), 
+						parseInt(parent.yPos) + (parent.diameter/2),
 						line
 					);
-		
 					bubbleContainer.appendChild(line);
-					lines.push([bubble, child, line]);
+					lines.push([line, parent, bubble]);
 				}
 
 				let isDragging = false;
@@ -464,25 +459,23 @@ rhit.MindmapPageController = class {
 							bubbleElement.style.left = (bubbleElement.offsetLeft - bubbleX) + "px";
 
 							for (let j = 0; j < lines.length; j++) {
-								if(lines[j][0].id === bubble.id) {
+								if (lines[j][1].id === bubble.id) {
+									this._drawLine(
+										parseInt(bubbleElement.style.left) + (bubble.diameter/2), 
+										parseInt(bubbleElement.style.top) + (bubble.diameter/2), 
+										parseInt(lines[j][2].xPos) + (lines[j][2].diameter/2), 
+										parseInt(lines[j][2].yPos) + (lines[j][2].diameter/2),
+										lines[j][0]
+									);
+								} else if (lines[j][2].id === bubble.id) {
 									this._drawLine(
 										parseInt(bubbleElement.style.left) + (bubble.diameter/2), 
 										parseInt(bubbleElement.style.top) + (bubble.diameter/2), 
 										parseInt(lines[j][1].xPos) + (lines[j][1].diameter/2), 
 										parseInt(lines[j][1].yPos) + (lines[j][1].diameter/2),
-										lines[j][2]
-									);
-								} else if (lines[j][1].id === bubble.id) {
-									this._drawLine(
-										parseInt(bubbleElement.style.left) + (bubble.diameter/2), 
-										parseInt(bubbleElement.style.top) + (bubble.diameter/2), 
-										parseInt(lines[j][0].xPos) + (lines[j][0].diameter/2), 
-										parseInt(lines[j][0].yPos) + (lines[j][0].diameter/2),
-										lines[j][2]
+										lines[j][0]
 									);
 								}
-								
-								
 							}
 						}
 					};
@@ -492,15 +485,31 @@ rhit.MindmapPageController = class {
 							console.log("Long Press");
 							isLongPress = true;
 
-							document.querySelector("#inputAddTitle").value = bubble.name;
-							this._createModalOptions(bubble.id, "inputEditParent");
+							document.querySelector("#bubbleID").innerHTML = bubble.id;
+							console.log(bubble.parentID)
+							this._createModalOptions(bubble, "inputEditParent");
 
-							document.querySelector("#submitEditBubble").addEventListener("click", (event) => {
-								const name = document.querySelector("#inputEditTitle").value;
-								const parentID = document.querySelector("#inputEditParent").value;
-								this._getBubbleChildren(bubble, parentID);
-					
-								rhit.fbBubbleManager.updateBubbleFromID(bubble.id, bubble.document, name, bubble.childrenIDs, bubble.xPos, bubble.yPos);
+							$("#editBubbleDialogue").on('show.bs.modal', (event) => {
+								document.querySelector("#inputEditTitle").value = bubble.name;
+							})
+
+							$("#editBubbleDialogue").on('shown.bs.modal', (event) => {
+								document.querySelector("#inputEditTitle").focus();
+
+								document.querySelector("#submitEditBubble").addEventListener("click", (event) => {
+									if (document.querySelector("#bubbleID").innerHTML === bubble.id) {
+										const name = document.querySelector("#inputEditTitle").value;
+										const parentID = document.querySelector("#inputEditParent").value;
+
+										rhit.fbBubbleManager.updateBubbleFromID(bubble.id, bubble.document, name, parentID, bubble.xPos, bubble.yPos);
+									}
+								});
+
+								document.querySelector("#submitDeleteBubble").addEventListener("click", (event) => {
+									if (document.querySelector("#bubbleID").innerHTML === bubble.id) {
+										rhit.fbBubbleManager.deleteBubbleFromID(bubble.id);
+									}
+								});
 							});
 
 							$('#editBubbleDialogue').modal('show');
@@ -514,13 +523,11 @@ rhit.MindmapPageController = class {
 					clearTimeout(pressTimer);
 					
 					if (!isDragging && !isLongPress && e.button === 0) {
-						console.log('Press');
-						
 						window.location.href = `/document.html?uid=${rhit.uid}&&documentid=${bubble.id}`;
 					}
 
 					if (isDragging) {
-						rhit.fbBubbleManager.updateBubbleFromID(bubble.id, bubble.document, bubble.name, bubble.childrenIDs, bubbleElement.style.left, bubbleElement.style.top);
+						rhit.fbBubbleManager.updateBubbleFromID(bubble.id, bubble.document, bubble.name, bubble.parentID, bubbleElement.style.left, bubbleElement.style.top);
 					}
 		
 					isLongPress = false;
@@ -552,29 +559,22 @@ rhit.MindmapPageController = class {
 		line.style.transform = `rotate(${slope}deg)`;
 	}
 
-	_getBubbleChildren(child, parentID) {
-		const parent = rhit.fbBubbleManager.getBubbleFromID(parentID);
-		let children = parent.childrenIDs;
-
-		for (let i = 0; i < children.length; i++) {
-			if (children[i] === child.id) {
-				return;
-			}
-		}
-
-		children.push(child.id);
-		rhit.fbBubbleManager.updateBubbleFromID(parent.id, parent.document, parent.name, children, parent.xPos, parent.yPos);
-	}
-
-	_createModalOptions(bubbleID, modalParentInputID) {
+	_createModalOptions(bubble, modalParentInputID) {
 		const optionsContainer = htmlToElement(`<select class="custom-select" id="${modalParentInputID}"></select>`);
+		optionsContainer.appendChild(htmlToElement(`<option value="">NONE</option>`));
 
 		for(let i = 0; i < rhit.fbBubbleManager.length; i++) {
 			const optionBubble = rhit.fbBubbleManager.getBubbleFromIndex(i);
 
-			if (!(optionBubble.id === bubbleID)) {
-				const bubbleOption = this._createOption(optionBubble);
-				optionsContainer.appendChild(bubbleOption);
+			if (!(optionBubble.id === bubble.id) && (optionBubble.mindmapID === bubble.mindmapID)) {
+				console.log(bubble.parentID, optionBubble.parentID);
+				if(bubble.parentID === optionBubble.id) {
+					const bubbleOption = this._createSelectedOption(optionBubble);
+					optionsContainer.appendChild(bubbleOption);
+				} else {
+					const bubbleOption = this._createOption(optionBubble);
+					optionsContainer.appendChild(bubbleOption);
+				}
 			}
 		}
 
@@ -588,6 +588,12 @@ rhit.MindmapPageController = class {
 	_createBubble(bubble) {
 		return htmlToElement(
 			`<div class="bubble">${bubble.name}</div>`
+		);
+	}
+
+	_createSelectedOption(bubble) {
+		return htmlToElement(
+			`<option value="${bubble.id}" selected>${bubble.name}</option>`
 		);
 	}
 
@@ -622,12 +628,12 @@ rhit.TrashPageController = class {
 }
 
 rhit.Bubble = class {
-	constructor(id, mindmapID, document, name, childrenIDs, xPos, yPos) {
+	constructor(id, mindmapID, document, name, parentID, xPos, yPos) {
 		this.id = id;
 		this.mindmapID = mindmapID;
 		this.document = document;
 		this.name = name;
-		this.childrenIDs = childrenIDs;
+		this.parentID = parentID;
 		this.xPos = xPos;
 		this.yPos = yPos;
 	}
@@ -655,7 +661,7 @@ rhit.FBBubbleManager = class {
 			[rhit.FB_KEY_BUBBLE_NAME]: name,
 			[rhit.FB_KEY_BUBBLE_USER_ID]: this._uid,
 			[rhit.FB_KEY_BUBBLE_MINDMAP_ID]: mindmapID,
-			[rhit.FB_KEY_BUBBLE_CHILDREN_IDS]: [],
+			[rhit.FB_KEY_BUBBLE_PARENT_ID]: "",
 			[rhit.FB_KEY_BUBBLE_XPOS]: 0,
 			[rhit.FB_KEY_BUBBLE_YPOS]: 0,
 		})
@@ -671,7 +677,6 @@ rhit.FBBubbleManager = class {
 		let query = this._ref;
 		if (this._uid) {
 			query = query.where(rhit.FB_KEY_BUBBLE_USER_ID, "==", this._uid);
-			//query = query.where(rhit.FB_KEY_BUBBLE_MINDMAP_ID, "==", ???);
 		}
 
 		this._unsubsribe = query.onSnapshot((querySnapshot) => {
@@ -682,21 +687,40 @@ rhit.FBBubbleManager = class {
 	stopListening() {
 		this._unsubsribe();
 	}
-	updateBubbleFromID(bubbleID, document, name, childrenIDs, xPos, yPos) {
+	updateBubbleFromID(bubbleID, document, name, parentID, xPos, yPos) {
 		const bubble = this._ref.doc(bubbleID);
-		bubble.update({
-			[rhit.FB_KEY_BUBBLE_DOCUMENT]: document,
-			[rhit.FB_KEY_BUBBLE_NAME]: name,
-			[rhit.FB_KEY_BUBBLE_CHILDREN_IDS]: childrenIDs,
-			[rhit.FB_KEY_BUBBLE_XPOS]: xPos,
-			[rhit.FB_KEY_BUBBLE_YPOS]: yPos,
-		});
+		if(bubble) {
+			bubble.update({
+				[rhit.FB_KEY_BUBBLE_DOCUMENT]: document,
+				[rhit.FB_KEY_BUBBLE_NAME]: name,
+				[rhit.FB_KEY_BUBBLE_PARENT_ID]: parentID,
+				[rhit.FB_KEY_BUBBLE_XPOS]: xPos,
+				[rhit.FB_KEY_BUBBLE_YPOS]: yPos,
+			});
+		} else {
+			console.log("Invalid ID");
+		}
 	}
-	getBubbleFromID(bubbleID) {
-		
+	deleteBubbleFromID(bubbleID) {
+		const bubble = this._ref.doc(bubbleID);
 		for (let i = 0; i < this.length; i++) {
 			const docSnapshot = this._documentSnapshots[i];
-			if (docSnapshot.id == bubbleID) {
+			if (docSnapshot.get(rhit.FB_KEY_BUBBLE_PARENT_ID) === bubbleID) {
+				this.updateBubbleFromID(
+					docSnapshot.id, 
+					docSnapshot.get(rhit.FB_KEY_BUBBLE_DOCUMENT), 
+					docSnapshot.get(rhit.FB_KEY_BUBBLE_NAME), 
+					"",
+					 docSnapshot.get(rhit.FB_KEY_BUBBLE_XPOS), 
+					 docSnapshot.get(rhit.FB_KEY_BUBBLE_YPOS));
+			}
+		}
+		bubble.delete();
+	}
+	getBubbleFromID(bubbleID) {
+		for (let i = 0; i < this.length; i++) {
+			const docSnapshot = this._documentSnapshots[i];
+			if (docSnapshot.id === bubbleID) {
 				return this.getBubbleFromIndex(i);
 			}
 		}
@@ -708,7 +732,7 @@ rhit.FBBubbleManager = class {
 			docSnapshot.get(rhit.FB_KEY_BUBBLE_MINDMAP_ID), 
 			docSnapshot.get(rhit.FB_KEY_BUBBLE_DOCUMENT), 
 			docSnapshot.get(rhit.FB_KEY_BUBBLE_NAME), 
-			docSnapshot.get(rhit.FB_KEY_BUBBLE_CHILDREN_IDS), 
+			docSnapshot.get(rhit.FB_KEY_BUBBLE_PARENT_ID), 
 			docSnapshot.get(rhit.FB_KEY_BUBBLE_XPOS),
 			docSnapshot.get(rhit.FB_KEY_BUBBLE_YPOS)
 		);

@@ -84,6 +84,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Edit Bubble</h5>
+            <p id="bubbleID" hidden></p>
           </div>
           <div class="modal-body">
             <div class="form-group">
@@ -92,7 +93,6 @@
               <span class="bmd-help">What is the name of your bubble?</span>
             </div>
             <div class="form-group">
-
               <div class="input-group mb-3">
                 <label for="inputEditParent" class="bmd-label-floating">Parent Bubble</label>
                 <select class="custom-select" id="inputEditParent">
@@ -103,11 +103,11 @@
                 </select>
                 <span class="bmd-help">What is the parent of your bubble?</span>
               </div>
-
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+            <button id="submitDeleteBubble" type="button" class="btn btn-secondary" data-dismiss="modal">DELETE</button>
             <button id="submitEditBubble" type="button" class="btn btn-primary" data-dismiss="modal">EDIT</button>
           </div>
         </div>
