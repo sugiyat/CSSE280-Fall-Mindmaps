@@ -223,9 +223,9 @@ rhit.HomePageController = class {
 
 		console.log("main page homePageController created");
 
-		document.querySelector("#settingButton").addEventListener("click", (event) => {
-			console.log("clicked setting button in homepage");
-		});
+		// document.querySelector("#settingButton").addEventListener("click", (event) => {
+		// 	console.log("clicked setting button in homepage");
+		// });
 
 		document.querySelector("#trashButton").addEventListener("click", (event) => {
 			console.log("go to trash bag page");
@@ -243,10 +243,10 @@ rhit.HomePageController = class {
 			rhit.fbMindmapManager.add(mindMapTitle, mindMapDesc);
 		});
 
-		document.querySelector("#submitAddFolder").addEventListener("click", (event) => {
-			const folderTitle = document.querySelector("#inputFolderTitle").value;
-			rhit.fbFolderManager.add(folderTitle);
-		});
+		// document.querySelector("#submitAddFolder").addEventListener("click", (event) => {
+		// 	const folderTitle = document.querySelector("#inputFolderTitle").value;
+		// 	rhit.fbFolderManager.add(folderTitle);
+		// });
 
 		$("#addMindmapDialogue").on("show.bs.modal", (event) => {
 			document.querySelector("#inputMindMapTitle").value = "";
@@ -289,26 +289,23 @@ rhit.HomePageController = class {
 	}
 
 	updateList() {
-		console.log("I need to update the list on the page");
-		console.log(`Num folders = ${rhit.fbFolderManager.length}`);
-		console.log(`Num mindmaps = ${rhit.fbMindmapManager.length}`);
 
 		//make new containers
 		const mindmapNewList = htmlToElement('<div id="mindmapContainer"></div>');
-		const folderNewList = htmlToElement('<div id="folderContainer"></div>');
+		//const folderNewList = htmlToElement('<div id="folderContainer"></div>');
 
 
 		//fill the folder container
-		for (let i = 0; i < rhit.fbFolderManager.length; i++) {
-			const folder = rhit.fbFolderManager.getFolderAtIndex(i);
-			const folderNewCard = this._createFolderCard(folder);
+		// for (let i = 0; i < rhit.fbFolderManager.length; i++) {
+		// 	const folder = rhit.fbFolderManager.getFolderAtIndex(i);
+		// 	const folderNewCard = this._createFolderCard(folder);
 
-			folderNewCard.onclick = (event) => {
-				console.log("new folder card onclick implemented");
-			}
+		// 	folderNewCard.onclick = (event) => {
+		// 		console.log("new folder card onclick implemented");
+		// 	}
 
-			folderNewList.appendChild(folderNewCard);
-		}
+		// 	folderNewList.appendChild(folderNewCard);
+		// }
 
 		//fill the mindmap container
 		for (let i = 0; i < rhit.fbMindmapManager.length; i++) {
@@ -316,7 +313,6 @@ rhit.HomePageController = class {
 			const mindmapNewCard = this._createMindMapCard(mindmap);
 
 			mindmapNewCard.onclick = (event) => {
-				console.log("new card onclick implemented");
 				window.location.href = `/bubble.html?uid=${rhit.uid}&&mindmapid=${mindmap.id}`;
 			}
 
@@ -325,16 +321,16 @@ rhit.HomePageController = class {
 
 
 		//Remove the old Containers
-		const oldFolderList = document.querySelector("#folderContainer");
-		oldFolderList.removeAttribute("id");
-		oldFolderList.hidden = true;
+		// const oldFolderList = document.querySelector("#folderContainer");
+		// oldFolderList.removeAttribute("id");
+		// oldFolderList.hidden = true;
 
 		const oldMindmapList = document.querySelector("#mindmapContainer");
 		oldMindmapList.removeAttribute("id");
 		oldMindmapList.hidden = true;
 
 		//Put in the new container
-		oldFolderList.parentElement.appendChild(folderNewList);
+		// oldFolderList.parentElement.appendChild(folderNewList);
 		oldMindmapList.parentElement.appendChild(mindmapNewList);
 	}
 }
@@ -349,8 +345,7 @@ rhit.DocumentPageController = class {
 			let bubble = rhit.fbBubbleManager.getBubbleFromID(this.bubbleID);
 			const documentText = document.querySelector("#documentText").value;
 
-			console.log("green");
-			rhit.fbBubbleManager.updateBubbleFromID(bubbleID, documentText, bubble.name, bubble.parentID, bubble.xPos, bubble.yPos);
+			rhit.fbBubbleManager.updateBubbleFromID(this.bubbleID, documentText, bubble.name, bubble.parentID, bubble.xPos, bubble.yPos);
 		});
 
 		document.querySelector("#doneDocument").addEventListener("click", (event) => {
@@ -488,10 +483,7 @@ rhit.MindmapPageController = class {
 							document.querySelector("#bubbleID").innerHTML = bubble.id;
 							console.log(bubble.parentID)
 							this._createModalOptions(bubble, "inputEditParent");
-
-							$("#editBubbleDialogue").on('show.bs.modal', (event) => {
-								document.querySelector("#inputEditTitle").value = bubble.name;
-							})
+							document.querySelector("#inputEditTitle").value = bubble.name;
 
 							$("#editBubbleDialogue").on('shown.bs.modal', (event) => {
 								document.querySelector("#inputEditTitle").focus();
