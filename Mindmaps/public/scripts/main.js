@@ -745,6 +745,9 @@ rhit.main = function () {
 		new rhit.DocumentPageController();
 	}
 	
+	document.querySelector("#navHomeButton").addEventListener("click", (event) => {
+		window.location.href = `/mainPage.html?uid=${rhit.uid}`
+	});
 
 };
 
