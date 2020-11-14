@@ -247,6 +247,7 @@ rhit.FBBubbleManager = class {
 	stopListening() {
 		this._unsubsribe();
 	}
+	
 	updateBubbleFromID(bubbleID, document, name, childrenIDs, xPos, yPos) {
 		const bubble = this._ref.doc(bubbleID);
 		bubble.update({
@@ -620,7 +621,7 @@ rhit.MindmapPageController = class {
 							console.log("Long Press");
 							isLongPress = true;
 
-							document.querySelector("#inputAddTitle").value = bubble.name;
+							document.querySelector("#inputEditTitle").value = bubble.name;
 							this._createModalOptions(bubble.id, "inputEditParent");
 
 							document.querySelector("#submitEditBubble").addEventListener("click", (event) => {
