@@ -17,7 +17,6 @@ rhit.uid = "";
 
 
 rhit.FB_COLLECTION_BUBBLES = "Bubbles";
-rhit.FB_COLLECTION_FOLDERS = "Folders";
 rhit.FB_COLLECTION_MINDMAPS = "Mindmaps";
 rhit.FB_COLLECTION_USERS = "Users";
 
@@ -26,9 +25,7 @@ rhit.FB_KEY_MINDMAPS_DESCRIPTION = "mindmapDesc";
 rhit.FB_KEY_MINDMAPS_AUTHOR = "mindmapAuthor";
 rhit.FB_KEY_MINDMAPS_PARENTFOLDER = "parentFolderID";
 rhit.FB_KEY_MINDMAPS_TIMESTAMP = "lastTouched";
-
-rhit.FB_KEY_FOLDERS_AUTHOR = "uid";
-rhit.FB_KEY_FOLDERS_TITLE = "title";
+rhit.FB_KEY_MINDMAPS_ISTRASH = "isTrash"
 
 rhit.FB_KEY_BUBBLE_DOCUMENT = "document";
 rhit.FB_KEY_BUBBLE_NAME = "name";
@@ -39,12 +36,10 @@ rhit.FB_KEY_BUBBLE_XPOS = "xPos";
 rhit.FB_KEY_BUBBLE_YPOS = "yPos";
 
 
-// rhit.FB_KEY_USER_NAME = "username";
-// rhit.FB_KEY_PROFILE_PICTURE_URL = "profilePictureURL";
 
 rhit.fbBubbleManager = null;
 rhit.fbMindmapManager = null;
-rhit.fbFolderManager = null;
+rhit.TrashBagPageController = null;
 
 function htmlToElement(html) {
 	var template = document.createElement("template");
@@ -54,82 +49,13 @@ function htmlToElement(html) {
 }
 
 rhit.MindMap = class {
-	constructor(id, title, description, author, parentFolderID){
+	constructor(id, title, description, author, isTrash, parentFolderID) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.author = author;
+		this.isTrash = isTrash;
 		this.parentFolderID = parentFolderID;
-	}
-
-}
-
-rhit.Folder = class {
-	constructor(id, title, author) {
-		this.id = id;
-		this.title = title;
-		this.author = author;
-	}
-}
-
-rhit.FBFolderManager = class {
-
-	constructor(uid) {
-		console.log("created FbFolderManager");
-		this._uid = uid;
-		this._documentSnapshots = [];
-		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_FOLDERS);
-		this._unsubsribe = null;
-	}
-
-	add(title) {
-		console.log(`folder title: ${title}`);
-
-		this._ref.add({
-				[rhit.FB_KEY_FOLDERS_TITLE]: title,
-				[rhit.FB_KEY_FOLDERS_AUTHOR]: this._uid,
-			})
-			.then(function (docRef) {
-				console.log("Folder added with ID: ", docRef.id);
-			})
-			.catch(function (error) {
-				console.error("Error adding folder: ", error);
-			});
-	}
-
-	beginListening(changeListener) {
-		let query = this._ref.orderBy(rhit.FB_KEY_FOLDERS_TITLE, "desc").limit(50);
-
-		if (this._uid) {
-			query = query.where(rhit.FB_KEY_FOLDERS_AUTHOR, "==", this._uid);
-		}
-
-		this._unsubsribe = query.onSnapshot((querySnapshot) => {
-			console.log("Folder update!");
-
-			this._documentSnapshots = querySnapshot.docs;
-			changeListener();
-		})
-	}
-
-	stopListening() {
-		this._unsubsribe();
-	}
-
-	// delete(id) { }
-	get length() {
-		return this._documentSnapshots.length;
-	}
-
-	getFolderAtIndex(index) {
-		const docSnapshot = this._documentSnapshots[index];
-		const folder = new rhit.Folder(
-			docSnapshot.id,
-			docSnapshot.get(rhit.FB_KEY_FOLDERS_TITLE),
-			docSnapshot.get(rhit.FB_KEY_FOLDERS_AUTHOR),
-
-		);
-		return folder;
 	}
 
 }
@@ -152,7 +78,7 @@ rhit.FbMindmapManager = class {
 			[rhit.FB_KEY_MINDMAPS_TITLE]: title,
 			[rhit.FB_KEY_MINDMAPS_DESCRIPTION]: description,
 			[rhit.FB_KEY_MINDMAPS_AUTHOR]: this._uid,
-			// [rhit.FB_KEY_MINDMAPS_PARENTFOLDER]: rhit.fbFolderManager.docs,
+			[rhit.FB_KEY_MINDMAPS_ISTRASH]: false,
 			[rhit.FB_KEY_MINDMAPS_TIMESTAMP]: firebase.firestore.Timestamp.now(),
 		})
 		.then(docRef => {
@@ -192,6 +118,7 @@ rhit.FbMindmapManager = class {
 			docSnapshot.get(rhit.FB_KEY_MINDMAPS_TITLE),
 			docSnapshot.get(rhit.FB_KEY_MINDMAPS_DESCRIPTION),
 			docSnapshot.get(rhit.FB_KEY_MINDMAPS_AUTHOR),
+			docSnapshot.get(rhit.FB_KEY_MINDMAPS_ISTRASH),
 			null
 		);
 		return mindmap;
@@ -206,12 +133,66 @@ rhit.FbMindmapManager = class {
 					docSnapshot.get(rhit.FB_KEY_MINDMAPS_TITLE),
 					docSnapshot.get(rhit.FB_KEY_MINDMAPS_DESCRIPTION),
 					docSnapshot.get(rhit.FB_KEY_MINDMAPS_AUTHOR),
+					docSnapshot.get(rhit.FB_KEY_MINDMAPS_ISTRASH),
 					null
 				);
 				return mindmap;
 			}
 		}
 		console.log("Invalid ID");
+	}
+
+	moveToTrash(mindmapID) {
+		this._ref.doc(mindmapID).update({
+				[rhit.FB_KEY_MINDMAPS_ISTRASH]: true
+			})
+			.then(function () {
+				console.log("mindmap successfully move to trash!");
+				window.location.href = `/mainPage.html?uid=${rhit.uid}`
+			})
+			.catch(function (error) {
+				// The document probably doesn't exist.
+				console.error("Error moving mindmap to trash: ", error);
+			});
+	}
+
+	restoreMindmap(mindmapID) {
+		this._ref.doc(mindmapID).update({
+				[rhit.FB_KEY_MINDMAPS_ISTRASH]: false
+			})
+			.then(function () {
+				console.log("mindmap successfully move out from trash!");
+				window.location.href = `/mainPage.html?uid=${rhit.uid}`
+			})
+			.catch(function (error) {
+				// The document probably doesn't exist.
+				console.error("Error moving mindmap out from trash: ", error);
+			});
+	}
+
+	delete(mindmapID) {
+		this._ref.doc(mindmapID).delete().then(function () {
+			console.log("Document with id " + mindmapID + "successfully deleted!");
+			console.log("should go back to homepage");
+			window.location.href = `/mainPage.html?uid=${rhit.uid}`
+		}).catch(function (error) {
+			console.error("Error removing document with id " + mindmapID + ": , error");
+		});
+	}
+
+	update(mindmapID, title, description) {
+		this._ref.doc(mindmapID).update({
+				[rhit.FB_KEY_MINDMAPS_TITLE]: title,
+				[rhit.FB_KEY_MINDMAPS_DESCRIPTION]: description
+			})
+			.then(function () {
+				console.log("mindmap information successfully updated!");
+				window.location.href = `/mainPage.html?uid=${rhit.uid}`
+			})
+			.catch(function (error) {
+				// The document probably doesn't exist.
+				console.error("Error updating mindmap information: ", error);
+			});
 	}
 }
 
@@ -222,10 +203,6 @@ rhit.HomePageController = class {
 	constructor() {
 
 		console.log("main page homePageController created");
-
-		// document.querySelector("#settingButton").addEventListener("click", (event) => {
-		// 	console.log("clicked setting button in homepage");
-		// });
 
 		document.querySelector("#trashButton").addEventListener("click", (event) => {
 			console.log("go to trash bag page");
@@ -243,10 +220,6 @@ rhit.HomePageController = class {
 			rhit.fbMindmapManager.add(mindMapTitle, mindMapDesc);
 		});
 
-		// document.querySelector("#submitAddFolder").addEventListener("click", (event) => {
-		// 	const folderTitle = document.querySelector("#inputFolderTitle").value;
-		// 	rhit.fbFolderManager.add(folderTitle);
-		// });
 
 		$("#addMindmapDialogue").on("show.bs.modal", (event) => {
 			document.querySelector("#inputMindMapTitle").value = "";
@@ -257,15 +230,6 @@ rhit.HomePageController = class {
 			document.querySelector("#inputMindMapTitle").focus();
 		});
 
-		$("#addFolderDialogue").on("show.bs.modal", (event) => {
-			document.querySelector("#inputFolderTitle").value = "";
-		});
-
-		$("#addFolderDialogue").on("shown.bs.modal", (event) => {
-			document.querySelector("#inputFolderTitle").focus();
-		});
-
-		rhit.fbFolderManager.beginListening(this.updateList.bind(this));
 		rhit.fbMindmapManager.beginListening(this.updateList.bind(this));
 
 	}
@@ -280,57 +244,35 @@ rhit.HomePageController = class {
 	  </div>`);
 	}
 
-	_createFolderCard(folder) {
-		return htmlToElement(`        <div class="card">
-		<div class="card-body">
-		  <h5 class="card-title">${folder.title}</h5>
-		</div>
-	  </div>`);
-	}
-
 	updateList() {
 
 		//make new containers
 		const mindmapNewList = htmlToElement('<div id="mindmapContainer"></div>');
-		//const folderNewList = htmlToElement('<div id="folderContainer"></div>');
-
-
-		//fill the folder container
-		// for (let i = 0; i < rhit.fbFolderManager.length; i++) {
-		// 	const folder = rhit.fbFolderManager.getFolderAtIndex(i);
-		// 	const folderNewCard = this._createFolderCard(folder);
-
-		// 	folderNewCard.onclick = (event) => {
-		// 		console.log("new folder card onclick implemented");
-		// 	}
-
-		// 	folderNewList.appendChild(folderNewCard);
-		// }
 
 		//fill the mindmap container
 		for (let i = 0; i < rhit.fbMindmapManager.length; i++) {
 			const mindmap = rhit.fbMindmapManager.getMindmapAtIndex(i);
-			const mindmapNewCard = this._createMindMapCard(mindmap);
+			console.log("is the mindmap trash: " + mindmap.id + "  " +mindmap.isTrash);
+			if (!mindmap.isTrash) {
+				console.log("this mindmap is not trash");
+				const mindmapNewCard = this._createMindMapCard(mindmap);
 
-			mindmapNewCard.onclick = (event) => {
-				window.location.href = `/bubble.html?uid=${rhit.uid}&&mindmapid=${mindmap.id}`;
+				mindmapNewCard.onclick = (event) => {
+					console.log("new card onclick implemented");
+					window.location.href = `/bubble.html?uid=${rhit.uid}&&mindmapid=${mindmap.id}`;
+				}
+
+				mindmapNewList.appendChild(mindmapNewCard);
+			} else {
+				console.log("this mindmap is trash");
 			}
-
-			mindmapNewList.appendChild(mindmapNewCard);
 		}
-
-
-		//Remove the old Containers
-		// const oldFolderList = document.querySelector("#folderContainer");
-		// oldFolderList.removeAttribute("id");
-		// oldFolderList.hidden = true;
 
 		const oldMindmapList = document.querySelector("#mindmapContainer");
 		oldMindmapList.removeAttribute("id");
 		oldMindmapList.hidden = true;
 
 		//Put in the new container
-		// oldFolderList.parentElement.appendChild(folderNewList);
 		oldMindmapList.parentElement.appendChild(mindmapNewList);
 	}
 }
@@ -374,12 +316,21 @@ rhit.MindmapPageController = class {
 			rhit.fbBubbleManager.add(name, this.mindmapID);
 		});
 
+		document.querySelector("#profileButton").addEventListener("click", (event) => {
+			window.location.href = `/userHomePage.html?username=${rhit.uid}`
+		});
+
 		$("#addBubbleDialogue").on('show.bs.modal', (event) => {
 			document.querySelector("#inputAddTitle").value = "";
 		});
 
 		$("#addBubbleDialogue").on('shown.bs.modal', (event) => {
 			document.querySelector("#inputAddTitle").focus();
+		});
+
+		document.querySelector("#trashButton").addEventListener("click", (event) => {
+			console.log("go to trash bag page");
+			window.location.href = `/trashBag.html?uid=${rhit.uid}`
 		});
 
 		rhit.fbBubbleManager.beginListening(this.updateView.bind(this));
@@ -389,6 +340,8 @@ rhit.MindmapPageController = class {
 		const area = document.getElementById("bubblePage");
 		const bubbleContainer = htmlToElement('<div id="bubbleContainer"></div>');
 		const lines = [];
+		var pressBackgounrd = true;
+		var pressBackgounrdFlag = 0;
 
 		for(let i = 0; i < rhit.fbBubbleManager.length; i++) {
 			const bubble = rhit.fbBubbleManager.getBubbleFromIndex(i);
@@ -427,6 +380,7 @@ rhit.MindmapPageController = class {
 				bubbleElement.onmousedown = (downEvent) => {
 					downEvent = downEvent || window.event;
 					downEvent.preventDefault();
+					pressBackgounrd = false;
 
 					isDragging = false;
 					isLongPress = false;
@@ -505,9 +459,10 @@ rhit.MindmapPageController = class {
 							});
 
 							$('#editBubbleDialogue').modal('show');
+							pressBackgounrdFlag = 1;
 						}
 						
-					},1500);
+					},700);
 					
 				};
 
@@ -529,6 +484,52 @@ rhit.MindmapPageController = class {
 				bubbleContainer.appendChild(bubbleElement);
 			}
 		}
+
+		var pressTimerforBackground;
+		var bubblePage = document.querySelector("#bubblePage");
+		var bubbles = document.getElementsByClassName(".bubble");
+
+
+		bubbles.onmousedown = () => {
+			// console.log("you are pressing bubbles not background");
+			console.log("the bubbles are not null: ", bubbles);
+			pressBackgounrd = false;
+		}
+
+		bubblePage.onmousedown = (e) => {
+			pressTimerforBackground = window.setTimeout(function () {
+				console.log("long pressed backgournd");
+				if (pressBackgounrd) {
+					$("#editOrDeleteMindmapDialog").modal("show");
+				}
+				if (pressBackgounrdFlag == 1) {
+					pressBackgounrd = true;
+					pressBackgounrdFlag = 0;
+				}
+			}, 700);
+		};
+
+		bubblePage.onmouseup = (e) => {
+			clearTimeout(pressTimerforBackground);
+		};
+
+		document.querySelector("#submitEditMindmapButton").addEventListener("click", (event) => {
+
+			const title = document.querySelector("#inputEditMindmapTitle").value;
+			const descr = document.querySelector("#inputEditDescription").value;
+
+			console.log("should update a mindmap's information");
+			console.log("this mindmap's id is: ", this.mindmapID);
+			console.log("this mindmap's new title is: ", title);
+			console.log("this mindmap's new des is: ", descr);
+			rhit.fbMindmapManager.update(this.mindmapID, title, descr);
+		});
+
+		document.querySelector("#deleteMindmapButton").addEventListener("click", (event) => {
+			console.log("should move this mindmap to trash folder: ", this.mindmapID);
+			rhit.fbMindmapManager.moveToTrash(this.mindmapID);
+		});
+
 
 		const oldBubbleContainer = document.querySelector("#bubbleContainer");
 		oldBubbleContainer.removeAttribute("id");
@@ -596,27 +597,83 @@ rhit.MindmapPageController = class {
 	}
 }
 
-rhit.FolderPageController = class {
+rhit.TrashBagPageController = class {
 	constructor() {
+		console.log("created trashbagpageController");
 
+
+		document.querySelector("#backIcon").onclick = (event) => {
+			console.log("go back to home page");
+			window.location.href = `/mainPage.html?uid=${rhit.uid}`;
+
+		};
+
+		document.querySelector("#profileButton").onclick = (event) => {
+			console.log("clicked profile button");
+			window.location.href = `/userHomePage.html?username=${firebase.auth().currentUser.email}`;
+		};
+
+		rhit.fbMindmapManager.beginListening(this.updateList.bind(this));
 	}
 
-	updateView() {
-
-	}
-	createMindmapCard(mindMap) {
-
-	}
-}
-
-rhit.TrashPageController = class {
-	constructor() {
-		
+	_createMindMapCard(mindmap) {
+		return htmlToElement(`        <div class="card" data-mid="${mindmap.id}">
+		<div class="card-body">
+		  <h6 class="card-subtitle mb-2 text-muted">Mindmap</h6>
+		  <h5 class="card-title" id="mindmapTitleText">${mindmap.title}</h5>
+		  <p class="card-text" id="mindmapDescText">${mindmap.description}</p>
+		</div>
+	  </div>`);
 	}
 
-	updateView() {
+	updateList() {
+		console.log("I need to update the list on trash page");
+		console.log(`Num mindmaps = ${rhit.fbMindmapManager.length}`);
 
+		//make new containers
+		const mindmapNewList = htmlToElement('<div id="trashContainer"></div>');
+
+		//fill the mindmap container
+		for (let i = 0; i < rhit.fbMindmapManager.length; i++) {
+			const mindmap = rhit.fbMindmapManager.getMindmapAtIndex(i);
+			if (mindmap.isTrash) {
+				console.log("this mindmap is trash");
+				const mindmapNewCard = this._createMindMapCard(mindmap);
+
+				mindmapNewCard.onclick = (event) => {
+					console.log("trash card onclick implemented");
+
+					$("#restoreOrDeleteDialog").modal("show");
+
+					document.querySelector("#restoreTrashButton").addEventListener("click", (event) => {
+						console.log("need to restore this trash");
+						rhit.fbMindmapManager.restoreMindmap(mindmap.id);
+			
+					});
+			
+					document.querySelector("#deleteTrashButton").addEventListener("click", (event) => {
+						console.log("delete this trash permanantly");
+						rhit.fbMindmapManager.delete(mindmap.id);
+					});
+
+				}
+
+				mindmapNewList.appendChild(mindmapNewCard);
+			} else {
+				console.log("this mindmap is trash");
+			}
+		}
+
+		const oldMindmapList = document.querySelector("#trashContainer");
+		oldMindmapList.removeAttribute("id");
+		oldMindmapList.hidden = true;
+
+		//Put in the new container
+		oldMindmapList.parentElement.appendChild(mindmapNewList);
 	}
+
+
+
 }
 
 rhit.Bubble = class {
@@ -736,34 +793,53 @@ rhit.FBBubbleManager = class {
 
 }
 
+rhit.initializePage = function () {
+	console.log("initialize pages");
+
+	if (document.querySelector("#mainPage")) {
+		console.log("main page");
+		rhit.HomePageController = new rhit.HomePageController();
+	}
+
+	if (document.querySelector("#trashBagPage")) {
+		console.log("trash bag page");
+		rhit.TrashBagPageController = new rhit.TrashBagPageController();
+	}
+
+	if (document.querySelector("#bubblePage")) {
+		console.log("bubble page");
+		new rhit.MindmapPageController();
+		document.querySelector("#navHomeButton").addEventListener("click", (event) => {
+			window.location.href = `/mainPage.html?uid=${rhit.uid}`
+		});
+	}
+
+	if (document.querySelector("#documentPage")) {
+		console.log("document page");
+		new rhit.DocumentPageController();
+	}
+
+}
+
 
 /* Main */
 /** function and class syntax examples */
 rhit.main = function () {
+
 	console.log("Ready main page");
 
 	const urlParams = new URLSearchParams(window.location.search);
 	rhit.uid = urlParams.get("uid");
 
-	rhit.fbFolderManager = new rhit.FBFolderManager(rhit.uid);
-	rhit.fbMindmapManager = new rhit.FbMindmapManager(rhit.uid);
 	rhit.fbBubbleManager = new rhit.FBBubbleManager(rhit.uid);
 
-	if(document.querySelector('#homePage')) {
-		new rhit.HomePageController();
-	}
+	rhit.fbMindmapManager = new rhit.FbMindmapManager(rhit.uid);
 
-	if(document.querySelector("#bubblePage")) {
-		new rhit.MindmapPageController();
-	}
 
-	if(document.querySelector("#documentPage")) {
-		new rhit.DocumentPageController();
-	}
-	
-	document.querySelector("#navHomeButton").addEventListener("click", (event) => {
-		window.location.href = `/mainPage.html?uid=${rhit.uid}`
-	});
+
+	// new rhit.HomePageController();
+
+	rhit.initializePage();
 
 };
 

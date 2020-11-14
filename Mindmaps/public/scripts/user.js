@@ -130,7 +130,7 @@ user.FBUserManager = class {
 			[user.FB_KEY_DOCUMENT_ID]: newDocRef.id
 		});
 
-		$("#simpleDialog").modal("show");
+		// $("#simpleDialog").modal("show");
 
 	}
 
